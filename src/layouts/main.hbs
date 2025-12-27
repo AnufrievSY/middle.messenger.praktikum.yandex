@@ -5,17 +5,14 @@
     <title>{{title}}</title>
 
     {{#each css}}
-        <link rel="stylesheet" href="css/{{this}}.css">
+        <link rel="stylesheet" href="{{this}}">
     {{/each}}
-
 </head>
 <body>
-
-{{{body}}}
+{{> @partial-block}}
 
 {{#each script}}
-    <script src="js/{{this}}.js" defer></script>
+    <script type="module" src="{{this}}"></script>
 {{/each}}
-
 </body>
 </html>

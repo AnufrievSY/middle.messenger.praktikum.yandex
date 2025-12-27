@@ -4,7 +4,10 @@
   "description": "",
   "main": "tsconfig.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prestart": "node src/scripts/generate-pages.js",
+    "start": "vite --port 3000",
+    "prebuild": "node src/scripts/generate-pages.js",
+    "build": "vite build"
   },
   "repository": {
     "type": "git",
@@ -23,5 +26,10 @@
   "bugs": {
     "url": "https://github.com/AnufrievSY/middle.messenger.praktikum.yandex/issues"
   },
-  "homepage": "https://github.com/AnufrievSY/middle.messenger.praktikum.yandex#readme"
+  "homepage": "https://github.com/AnufrievSY/middle.messenger.praktikum.yandex#readme",
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "sass": "^1.97.1",
+    "vite-plugin-handlebars": "^2.0.0"
+  }
 }
