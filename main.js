@@ -1,22 +1,29 @@
 const express = require('express');
-const exphbs = require('express-handlebars');
+const handlebars = require('express-handlebars');
 const path = require('path');
-
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.static(path.join(__dirname, 'src')));
 
-app.engine('hbs', exphbs.engine({
-    extname: 'hbs'
+app.engine("hbs", handlebars.engine({
+    extname: "hbs",
+    layoutsDir: path.resolve("src/layouts"),
+    defaultLayout: "main",
 }));
-app.set('view engine', 'hbs');
-app.set('views', './src/views');
+
+app.set("view engine", "hbs");
+app.set("views", path.resolve("src/pages"));
+app.use("/js", express.static(path.resolve("src/scripts")));
+app.use("/css", express.static(path.resolve("src/styles")));
+app.use("/images", express.static(path.resolve("src/assets/images")));
+
 
 app.get("/login", (req, res) => {
     res.render("input-form", {
-        css: "base",
+        css: ["base", "input-form"],
+        script: ["check-input"],
         action: "/login",
         submitText: "SIGN IN",
         altLink: { href: "/register", text: "REGISTER" },
@@ -34,7 +41,8 @@ app.post('/login', (req, res) => {
 
 app.get("/register", (req, res) => {
     res.render("input-form", {
-        css: "base",
+        css: ["base", "input-form"],
+        script: ["check-input"],
         action: "/register",
         submitText: "REGISTER",
         altLink: { href: "/login", text: "SIGN IN" },
@@ -63,8 +71,9 @@ app.get("/settings", (req, res) => {
         secondName: "SecondName",
     };
 
-    res.render("input-form", {          // <-- твой шаблон формы
-        css: "base",             // можно и base если не хочешь отдельный
+    res.render("input-form", {
+        css: ["base", "input-form"],
+        script: ["check-input"],
         title: null,
         subtitle: null,
         action: "/settings",
@@ -86,21 +95,21 @@ app.get("/settings", (req, res) => {
 
 app.get("/404", (req, res) => {
     res.status(404).render("error-page", {
-        css: "error-page",
+        css: ["error-page"],
         code: 404,
         title: "Not Found",
         imageUrl: "/images/errors/404.jpg",
         backHref: req.get("Referrer") || "/",
         line1: "Not",
         line2: "Found",
-        line3: "",          // можно пустую строку
-        message: ""         // опционально
+        line3: "",
+        message: ""
     });
 });
 
 app.get("/500", (req, res) => {
     res.status(500).render("error-page", {
-        css: "error-page",
+        css: ["error-page"],
         code: 500,
         title: "Internal Server Error",
         imageUrl: "/images/errors/500.jpg",
