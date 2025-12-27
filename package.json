@@ -1,0 +1,27 @@
+{
+  "name": "middle.messenger.praktikum.yandex",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tsconfig.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnufrievSY/middle.messenger.praktikum.yandex.git"
+  },
+  "private": true,
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-handlebars": "^8.0.4",
+    "vite": "^7.3.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AnufrievSY/middle.messenger.praktikum.yandex/issues"
+  },
+  "homepage": "https://github.com/AnufrievSY/middle.messenger.praktikum.yandex#readme"
+}

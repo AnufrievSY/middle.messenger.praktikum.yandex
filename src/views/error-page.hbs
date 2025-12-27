@@ -1,0 +1,25 @@
+<main class="error">
+    <section class="tile tile--img" aria-hidden="true">
+        <img class="tile__img" src="{{imageUrl}}" alt="" />
+    </section>
+
+    <section class="tile tile--code">
+        <div class="code">{{code}}</div>
+    </section>
+
+    <section class="tile tile--text">
+        <div class="spaced">
+            <div class="spaced__line">{{line1}}</div>
+            <div class="spaced__line">{{line2}}</div>
+            <div class="spaced__line">{{line3}}</div>
+        </div>
+
+        {{#if message}}
+            <p class="msg">{{message}}</p>
+        {{/if}}
+    </section>
+
+    <section class="tile tile--back">
+        <a class="back" href="{{backHref}}">back to previous page</a>
+    </section>
+</main>
