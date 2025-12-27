@@ -44,6 +44,11 @@ npm run build
 
 ## Деплой
 
-Проект задеплоен на Netlify с настроенным автодеплоем.
+Проект задеплоен на [Netlify](https://taupe-beijinho-bc1893.netlify.app/) с настроенным автодеплоем.
 
-Ссылка на деплой будет добавлена после завершения настройки.
+- [страница авторизации](https://taupe-beijinho-bc1893.netlify.app/login)
+- [страница регистрации](https://taupe-beijinho-bc1893.netlify.app/register)
+- [страница профиля](https://taupe-beijinho-bc1893.netlify.app/settings)
+- [страница со списком чатов (заглушка)](https://taupe-beijinho-bc1893.netlify.app/chats)
+- [страница ошибки 404](https://taupe-beijinho-bc1893.netlify.app/404)
+- [страница ошибки 500](https://taupe-beijinho-bc1893.netlify.app/500)
