@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "tsconfig.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "prestart": "node src/scripts/generate-pages.js",
     "start": "vite --port 3000",
