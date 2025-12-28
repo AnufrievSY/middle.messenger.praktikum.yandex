@@ -1,13 +1,13 @@
 import { defineConfig, type Plugin } from "vite";
 import { resolve } from "path";
-import fs from "node:fs";
+import { existsSync, readdirSync, copyFileSync, readFileSync } from "node:fs";
 import handlebars from "vite-plugin-handlebars";
 
 const TMP_DIR = resolve(__dirname, ".tmp-pages");
 
 function getInputs() {
-    const files = fs.existsSync(TMP_DIR)
-        ? fs.readdirSync(TMP_DIR).filter((f) => f.endsWith(".html"))
+    const files = existsSync(TMP_DIR)
+        ? readdirSync(TMP_DIR).filter((f) => f.endsWith(".html"))
         : [];
 
     const input: Record<string, string> = {};
@@ -25,11 +25,11 @@ function netlifyFixHtmlOutput(): Plugin {
         closeBundle() {
             const dist = resolve(__dirname, "dist");
             const from = resolve(dist, ".tmp-pages");
-            if (!fs.existsSync(from)) return;
+            if (!existsSync(from)) return;
 
-            for (const f of fs.readdirSync(from)) {
+            for (const f of readdirSync(from)) {
                 if (!f.endsWith(".html")) continue;
-                fs.copyFileSync(resolve(from, f), resolve(dist, f));
+                copyFileSync(resolve(from, f), resolve(dist, f));
             }
         },
     };
@@ -50,9 +50,9 @@ function tmpPagesServeAndTransform(): Plugin {
                 }
 
                 const filePath = resolve(TMP_DIR, route.slice(1));
-                if (!fs.existsSync(filePath)) return next();
+                if (!existsSync(filePath)) return next();
 
-                const rawHtml = fs.readFileSync(filePath, "utf8");
+                const rawHtml = readFileSync(filePath, "utf8");
                 const transformed = await server.transformIndexHtml(route, rawHtml);
 
                 res.statusCode = 200;
