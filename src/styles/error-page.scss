@@ -13,6 +13,12 @@ body {
     place-items: center;
 }
 
+#app {
+    display: grid;
+    place-items: center;
+    height: 100%;
+}
+
 :root{
     --purple: #c9a6df;
     --purple-dark: #6b3b97;
