@@ -12,9 +12,13 @@ export default class AuthController {
 
     private handleLogin(data: AuthData): void {
         this.service.login(data);
+        if (this.service.getCurrentUser()) {
+            mediator.emit("route:go", "/chats");
+        }
     }
 
     private handleRegister(data: RegisterData): void {
         this.service.register(data);
+        mediator.emit("route:go", "/chats");
     }
 }

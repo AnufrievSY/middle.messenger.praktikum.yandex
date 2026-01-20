@@ -13,6 +13,7 @@ import RegisterPage from "./pages/Register";
 import SettingsPage from "./pages/Settings";
 import ChatsPage from "./pages/Chats";
 import ErrorPage from "./pages/Error";
+import mediator from "./mediator/AppMediator";
 
 import ChatController from "./controllers/ChatController";
 import AuthController from "./controllers/AuthController";
@@ -47,3 +48,7 @@ function renderPage(): void {
 
 window.addEventListener("hashchange", renderPage);
 window.addEventListener("DOMContentLoaded", renderPage);
+
+mediator.on("route:go", (path: string) => {
+    window.location.hash = path;
+});
