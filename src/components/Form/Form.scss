@@ -1,0 +1,27 @@
+.form {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    width: 360px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.form__title {
+    margin: 0 0 24px;
+    font-size: 20px;
+    color: #2f2fa2;
+}
+
+.form__fields {
+    margin-bottom: 16px;
+}
+
+.form__actions {
+    margin-top: 8px;
+}
+
+.form__footer {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #555;
+}
