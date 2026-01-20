@@ -22,15 +22,22 @@ import ChatService from "./services/chatService";
 import AuthService from "./services/authService";
 import SettingsService from "./services/settingsService";
 
-new ChatController(new ChatService());
-new AuthController(new AuthService());
-new SettingsController(new SettingsService());
+const chatService = new ChatService();
+const authService = new AuthService();
+const settingsService = new SettingsService();
+
+new ChatController(chatService);
+new AuthController(authService);
+new SettingsController(settingsService);
+
+(window as unknown as { __app?: { auth: AuthService } }).__app = { auth: authService };
 
 const routes: Record<string, () => HTMLElement> = {
     "/login": () => new LoginPage().getContent(),
     "/register": () => new RegisterPage().getContent(),
     "/settings": () => new SettingsPage().getContent(),
     "/chats": () => new ChatsPage().getContent(),
+    "/400": () => new ErrorPage({ code: 400, message: "Некорректный запрос" }).getContent(),
     "/404": () => new ErrorPage({ code: 404, message: "Страница не найдена" }).getContent(),
     "/500": () => new ErrorPage({ code: 500, message: "Мы уже исправляем" }).getContent(),
 };

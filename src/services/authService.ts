@@ -12,6 +12,11 @@ export type RegisterData = {
     password: string;
 };
 
+type AuthResult = {
+    ok: boolean;
+    reason?: "exists" | "invalid";
+};
+
 export default class AuthService {
     private currentUser: RegisterData | null = null;
 
@@ -24,20 +29,40 @@ export default class AuthService {
         password: "Demo1234",
     };
 
+    private users: RegisterData[] = [this.demoUser];
+
     getCurrentUser(): RegisterData | null {
         return this.currentUser;
     }
 
-    login(data: AuthData): void {
-        const isDemoMatch = data.login === this.demoUser.login && data.password === this.demoUser.password;
-        if (isDemoMatch) {
-            this.currentUser = this.demoUser;
-        }
-        console.log("AuthService.login", data);
+    getUsers(): RegisterData[] {
+        return [...this.users];
     }
 
-    register(data: RegisterData): void {
+    login(data: AuthData): AuthResult {
+        const user = this.users.find(
+            (item) => item.login === data.login && item.password === data.password
+        );
+        if (user) {
+            this.currentUser = user;
+            return { ok: true };
+        }
+        console.log("AuthService.login", data);
+        return { ok: false, reason: "invalid" };
+    }
+
+    register(data: RegisterData): AuthResult {
+        const exists = this.users.some(
+            (item) => item.login === data.login || item.email === data.email
+        );
+        if (exists) {
+            this.currentUser = this.demoUser;
+            console.log("AuthService.register.exists", data);
+            return { ok: true, reason: "exists" };
+        }
+        this.users.push(data);
         this.currentUser = data;
         console.log("AuthService.register", data);
+        return { ok: true };
     }
 }

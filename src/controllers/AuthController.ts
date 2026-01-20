@@ -11,14 +11,16 @@ export default class AuthController {
     }
 
     private handleLogin(data: AuthData): void {
-        this.service.login(data);
-        if (this.service.getCurrentUser()) {
+        const result = this.service.login(data);
+        if (result.ok) {
             mediator.emit("route:go", "/chats");
         }
     }
 
     private handleRegister(data: RegisterData): void {
-        this.service.register(data);
-        mediator.emit("route:go", "/chats");
+        const result = this.service.register(data);
+        if (result.ok) {
+            mediator.emit("route:go", "/chats");
+        }
     }
 }
