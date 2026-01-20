@@ -12,30 +12,30 @@ export default class ChatController {
         mediator.on("message:send", this.handleMessageSend.bind(this));
     }
 
-    private handleChatsRequest(): void {
-        const chats = this.service.getChats();
+    private async handleChatsRequest(): Promise<void> {
+        const chats = await this.service.getChats();
         mediator.emit("chats:update", chats);
         if (chats.length > 0) {
-            this.selectChat(chats[0].id);
+            await this.selectChat(chats[0].id);
         }
     }
 
-    private handleChatSelect(chatId: number): void {
-        this.selectChat(chatId);
+    private async handleChatSelect(chatId: number): Promise<void> {
+        await this.selectChat(chatId);
     }
 
-    private handleMessageSend(payload: { chatId: number; message: string }): void {
+    private async handleMessageSend(payload: { chatId: number; message: string }): Promise<void> {
         if (!payload.message.trim()) {
             return;
         }
-        this.service.sendMessage(payload.chatId, payload.message);
-        const messages = this.service.getMessages(payload.chatId);
+        await this.service.sendMessage(payload.chatId, payload.message);
+        const messages = await this.service.getMessages(payload.chatId);
         mediator.emit("messages:update", messages);
     }
 
-    private selectChat(chatId: number): void {
+    private async selectChat(chatId: number): Promise<void> {
         this.activeChatId = chatId;
-        const messages = this.service.getMessages(chatId);
+        const messages = await this.service.getMessages(chatId);
         mediator.emit("messages:update", messages);
         mediator.emit("chat:active", chatId);
     }

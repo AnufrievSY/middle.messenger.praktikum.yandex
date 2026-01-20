@@ -1,3 +1,5 @@
+import HTTPTransport from "./httpTransport";
+
 export type ChatPreview = {
     id: number;
     title_name: string;
@@ -9,67 +11,43 @@ export type ChatPreview = {
 
 export type Message = {
     id: number;
-    chatId: number;
-    author: string;
     text: string;
     time: string;
     isMine?: boolean;
+    chatId?: number;
 };
 
-const chats: ChatPreview[] = [
-    {
-        id: 1,
-        title_name: "User1",
-        title_date: "10:21",
-        not_read_count: 0,
-        last_message: { author: "User0", text: "SecondMsg" },
-        avatar: "/data/users/1/avatar.jpg",
-    },
-    {
-        id: 2,
-        title_name: "User2",
-        title_date: "09:10",
-        not_read_count: 7,
-        last_message: { author: "User2", text: "FirstMsg" },
-        avatar: "/data/users/2/avatar.jpg",
-    },
-    {
-        id: 3,
-        title_name: "User3",
-        title_date: "10:21",
-        not_read_count: 1,
-        last_message: { author: "User0", text: "SecondMsg" },
-        avatar: "/data/users/1/avatar.jpg",
-    },
-];
-
-const messages: Message[] = [
-    { id: 1, chatId: 1, author: "Анна", text: "План на сегодня готов", time: "10:15" },
-    { id: 2, chatId: 1, author: "Вы", text: "Отлично, спасибо!", time: "10:17", isMine: true },
-    { id: 3, chatId: 2, author: "Мама", text: "Ужин в 19:00", time: "18:20" },
-    { id: 4, chatId: 3, author: "Алексей", text: "Новый макет готов", time: "09:30" },
-    { id: 5, chatId: 3, author: "Вы", text: "Проверю сегодня", time: "09:45", isMine: true },
-];
-
 export default class ChatService {
-    getChats(): ChatPreview[] {
-        return chats;
+    private transport = new HTTPTransport();
+    private messagesCache = new Map<number, Message[]>();
+    private readonly userId = 0;
+
+    async getChats(): Promise<ChatPreview[]> {
+        const response = await this.transport.get(`/data/users/${this.userId}/chats.json`);
+        return Array.isArray(response) ? (response as ChatPreview[]) : [];
     }
 
-    getMessages(chatId: number): Message[] {
-        return messages.filter((message) => message.chatId === chatId);
+    async getMessages(chatId: number): Promise<Message[]> {
+        if (this.messagesCache.has(chatId)) {
+            return this.messagesCache.get(chatId) ?? [];
+        }
+        const response = await this.transport.get(`/data/users/${this.userId}/messages/${chatId}.json`);
+        const list = Array.isArray(response) ? (response as Message[]) : [];
+        this.messagesCache.set(chatId, list);
+        return list;
     }
 
-    sendMessage(chatId: number, text: string): Message {
+    async sendMessage(chatId: number, text: string): Promise<Message> {
+        const messages = await this.getMessages(chatId);
         const message: Message = {
-            id: messages.length + 1,
-            chatId,
-            author: "Вы",
+            id: Date.now(),
+            chatId: chatId,
             text,
             time: new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
             isMine: true,
         };
         messages.push(message);
+        this.messagesCache.set(chatId, messages);
         return message;
     }
 }
