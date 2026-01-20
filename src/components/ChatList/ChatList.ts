@@ -17,6 +17,7 @@ export default class ChatList extends Block<ChatListProps> {
         if (!item) {
             return;
         }
+        event.preventDefault();
         const chatId = Number(item.dataset.chatId);
         this.props.onSelect?.(chatId);
     }
@@ -24,8 +25,9 @@ export default class ChatList extends Block<ChatListProps> {
     render(): HTMLElement {
         const items = this.props.chats
             .map((chat) => {
+                const isActive = chat.id === this.props.activeChatId;
                 return `
-                    <a class="chat-item" href="#/chats" data-chat-id="${chat.id}">
+                    <button class="chat-item ${isActive ? "chat-item--active" : ""}" type="button" data-chat-id="${chat.id}">
                         <img class="chat-preview__avatar" src="${chat.avatar}" alt="Изображение пользователя ${chat.title_name}" />
                         <div class="chat-preview__title">
                             <span class="chat-preview__title_name">${chat.title_name}</span>
@@ -37,7 +39,7 @@ export default class ChatList extends Block<ChatListProps> {
                             </span>
                             ${chat.not_read_count ? `<span class="chat-preview__subtitle_counter">${chat.not_read_count}</span>` : ""}
                         </div>
-                    </a>
+                    </button>
                 `;
             })
             .join("");

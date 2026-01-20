@@ -60,6 +60,13 @@
 }
 
 .chat-item {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-align: left;
+  font: inherit;
+  width: 100%;
+  cursor: pointer;
+
   display: grid;
   grid-template-columns: 44px 1fr;
   grid-template-rows: auto auto;
@@ -72,13 +79,15 @@
 
   color: var(--text);
   background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.18);
 
   margin-bottom: 10px;
 
   transition: background 0.15s ease, transform 0.08s ease;
 }
 
+.chat-item--active {
+  background: rgba(255, 255, 255, 0.32);
+}
 .chat-item:hover {
   background: rgba(255, 255, 255, 0.28);
 }
