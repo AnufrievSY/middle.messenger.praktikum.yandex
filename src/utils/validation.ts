@@ -44,16 +44,16 @@ export function validateField(name: string, value: string): ValidationResult {
 }
 
 export function showFieldError(input: HTMLInputElement, result: ValidationResult): void {
-    const field = input.closest(".input-field");
+    const field = input.closest(".field");
     if (!field) {
         return;
     }
-    const error = field.querySelector<HTMLElement>(".input-field__error");
+    const error = field.querySelector<HTMLElement>(".field__error");
     if (!error) {
         return;
     }
     error.textContent = result.message;
-    field.classList.toggle("input-field--invalid", !result.isValid);
+    field.classList.toggle("field--invalid", !result.isValid);
 }
 
 export function validateForm(form: HTMLFormElement): boolean {

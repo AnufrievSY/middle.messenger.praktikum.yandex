@@ -40,23 +40,25 @@ export default class Form extends Block<FormProps> {
 
     render(): HTMLElement {
         const fieldsMarkup = this.props.fields.map((field) => field.getContent().outerHTML).join("");
+        const subtitleMarkup = this.props.subtitle ? `<p class="input-subtitle">${this.props.subtitle}</p>` : "";
+        const altLinkMarkup = this.props.altLink
+            ? `<a class="btn alt-btn" href="${this.props.altLink.href}">${this.props.altLink.text}</a>`
+            : "";
         const template = `
-            <form class="form">
-                <h1 class="form__title">{{title}}</h1>
-                <div class="form__fields">
-                    {{fields}}
-                </div>
-                <div class="form__actions">
-                    {{{submitButton}}}
-                </div>
-                <div class="form__footer">{{footer}}</div>
+            <form class="input-form">
+                <h1 class="input-title">{{title}}</h1>
+                {{subtitle}}
+                {{fields}}
+                {{{submitButton}}}
+                {{altLink}}
             </form>
         `;
         return this.compile(template, {
             title: this.props.title,
             fields: fieldsMarkup,
             submitButton: this.props.submitButton,
-            footer: this.props.footer ?? "",
+            subtitle: subtitleMarkup,
+            altLink: altLinkMarkup,
         });
     }
 }

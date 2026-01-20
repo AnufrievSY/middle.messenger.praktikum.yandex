@@ -24,21 +24,28 @@ export default class ChatList extends Block<ChatListProps> {
     render(): HTMLElement {
         const items = this.props.chats
             .map((chat) => {
-                const isActive = chat.id === this.props.activeChatId;
                 return `
-                    <li class="chat-list__item ${isActive ? "chat-list__item--active" : ""}" data-chat-id="${chat.id}">
-                        <div class="chat-list__title">${chat.title}</div>
-                        <div class="chat-list__last">${chat.lastMessage}</div>
-                        ${chat.unread ? `<span class="chat-list__badge">${chat.unread}</span>` : ""}
-                    </li>
+                    <a class="chat-item" href="#/chats" data-chat-id="${chat.id}">
+                        <img class="chat-preview__avatar" src="${chat.avatar}" alt="Изображение пользователя ${chat.title_name}" />
+                        <div class="chat-preview__title">
+                            <span class="chat-preview__title_name">${chat.title_name}</span>
+                            <span class="chat-preview__title_date">${chat.title_date}</span>
+                        </div>
+                        <div class="chat-preview__subtitle">
+                            <span class="chat-preview__subtitle_last-message">
+                                ${chat.last_message ? `${chat.last_message.author}: ${chat.last_message.text}` : "No messages yet"}
+                            </span>
+                            ${chat.not_read_count ? `<span class="chat-preview__subtitle_counter">${chat.not_read_count}</span>` : ""}
+                        </div>
+                    </a>
                 `;
             })
             .join("");
 
         const template = `
-            <ul class="chat-list">
+            <div>
                 ${items}
-            </ul>
+            </div>
         `;
         return this.compile(template, {});
     }

@@ -17,7 +17,7 @@ export default class SettingsPage extends BasePage {
                 new Input({ name: "password", label: "Пароль", type: "password" }),
             ],
             submitButton: new Button({ label: "Сохранить", type: "submit" }),
-            footer: '<a class="nav-link" href="#/chats">Назад к чатам</a>',
+            altLink: { href: "#/chats", text: "Назад к чатам" },
             onSubmit: (data) => mediator.emit("settings:update", data),
         });
         super({ form });
@@ -25,9 +25,14 @@ export default class SettingsPage extends BasePage {
 
     render(): HTMLElement {
         const template = `
-            <section class="page page--center">
-                {{{form}}}
+            <section class="input-page">
+                <a class="back-btn" href="#/chats" aria-label="Назад">‹</a>
+                <div class="input-card">
+                    <div class="avatar-placeholder" aria-hidden="true"></div>
+                    {{{form}}}
+                </div>
             </section>
+            <div class="page-bg"></div>
         `;
         return this.compile(template, this.props);
     }

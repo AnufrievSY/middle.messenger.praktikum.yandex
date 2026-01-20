@@ -4,10 +4,10 @@ import { InputProps } from "./types";
 export default class Input extends Block<InputProps> {
     render(): HTMLElement {
         const template = `
-            <div class="input-field">
-                <label class="input-field__label" for="{{name}}">{{label}}</label>
-                <input class="input-field__control" id="{{name}}" name="{{name}}" type="{{type}}" value="{{value}}" placeholder="{{placeholder}}" />
-                <span class="input-field__error"></span>
+            <div class="field">
+                <label class="field__label" for="{{name}}">{{label}}</label>
+                <input class="field__input" id="{{name}}" name="{{name}}" type="{{type}}" value="{{value}}" placeholder="{{placeholder}}" />
+                <span class="field__error"></span>
             </div>
         `;
         return this.compile(template, {

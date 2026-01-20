@@ -1,12 +1,7 @@
 import "./styles/base.scss";
-import "./styles/layout.scss";
-import "./components/Button/Button.scss";
-import "./components/Input/Input.scss";
-import "./components/Form/Form.scss";
-import "./components/ChatList/ChatList.scss";
-import "./components/ChatMessage/ChatMessage.scss";
-import "./components/NavLink/NavLink.scss";
-import "./components/MessageForm/MessageForm.scss";
+import "./styles/input-form.scss";
+import "./styles/error-page.scss";
+import "./styles/chats.scss";
 
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";

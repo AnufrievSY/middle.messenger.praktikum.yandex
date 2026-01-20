@@ -9,6 +9,7 @@ export default class ChatsPage extends BasePage {
     private messages: Message[] = [];
     private chats: ChatPreview[] = [];
     private activeChatId: number | null = null;
+    private activeChat: ChatPreview | null = null;
     private chatList: ChatList;
     private messageForm: MessageForm;
 
@@ -40,6 +41,7 @@ export default class ChatsPage extends BasePage {
 
         mediator.on("chat:active", (chatId: number) => {
             this.activeChatId = chatId;
+            this.activeChat = this.chats.find((chat) => chat.id === chatId) ?? null;
             this.chatList.setProps({ activeChatId: chatId });
         });
 
@@ -48,41 +50,41 @@ export default class ChatsPage extends BasePage {
 
     private renderMessages(): string {
         if (!this.messages.length) {
-            return '<p class="chat-empty">Выберите чат, чтобы начать общение</p>';
+            return '<div class="chat__body_empty">No messages yet</div>';
         }
-        return this.messages
-            .map((message) => new ChatMessage(message).getContent().outerHTML)
-            .join("");
+        return `
+            <div class="chat__body_messages">
+                ${this.messages.map((message) => new ChatMessage(message).getContent().outerHTML).join("")}
+            </div>
+        `;
     }
 
     render(): HTMLElement {
         const template = `
-            <section class="page page--chats">
-                <aside class="sidebar">
-                    <h2 class="sidebar__title">Чаты</h2>
+            <section class="chats-page">
+                <section class="chats-section">
                     {{{chatList}}}
-                    <a class="nav-link sidebar__link" href="#/settings">Профиль</a>
-                </aside>
-                <main class="chat">
-                    <header class="chat__header">
-                        <h2 class="chat__title">Переписка</h2>
-                        <nav class="chat__nav">
-                            <a class="nav-link" href="#/login">Выйти</a>
-                        </nav>
-                    </header>
-                    <div class="chat__feed">
+                </section>
+                <section class="chat-section">
+                    <div class="chat__header">
+                        <img class="chat__header__avatar" src="{{chatAvatar}}" alt="Изображение пользователя" />
+                        <div class="chat__header_title_name">{{chatTitle}}</div>
+                        <div class="chat__header_settings"></div>
+                    </div>
+                    <div class="chat__body">
                         {{messages}}
                     </div>
-                    <div class="chat__composer">
-                        {{{messageForm}}}
-                    </div>
-                </main>
+                    {{{messageForm}}}
+                </section>
             </section>
+            <div class="page-bg"></div>
         `;
         return this.compile(template, {
             chatList: this.chatList,
             messageForm: this.messageForm,
             messages: this.renderMessages(),
+            chatAvatar: this.activeChat?.avatar ?? "/data/users/1/avatar.jpg",
+            chatTitle: this.activeChat?.title_name ?? "Select chat",
         });
     }
 }

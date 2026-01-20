@@ -13,7 +13,7 @@ export default class LoginPage extends BasePage {
                 new Input({ name: "password", label: "Пароль", type: "password" }),
             ],
             submitButton: new Button({ label: "Войти", type: "submit" }),
-            footer: '<a class="nav-link" href="#/register">Нет аккаунта?</a>',
+            altLink: { href: "#/register", text: "Нет аккаунта?" },
             onSubmit: (data) => mediator.emit("auth:login", data),
         });
         super({ form });
@@ -21,9 +21,12 @@ export default class LoginPage extends BasePage {
 
     render(): HTMLElement {
         const template = `
-            <section class="page page--center">
-                {{{form}}}
+            <section class="input-page">
+                <div class="input-card">
+                    {{{form}}}
+                </div>
             </section>
+            <div class="page-bg"></div>
         `;
         return this.compile(template, this.props);
     }

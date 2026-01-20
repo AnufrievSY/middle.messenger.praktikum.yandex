@@ -41,12 +41,12 @@ export default class MessageForm extends Block<MessageFormProps> {
 
     render(): HTMLElement {
         const template = `
-            <form class="message-form">
-                <div class="input-field input-field--message">
-                    <input class="input-field__control" name="message" type="text" placeholder="Введите сообщение" />
-                    <span class="input-field__error"></span>
+            <form class="chat__input">
+                <div class="field">
+                    <input class="field__input chat__input_message" name="message" type="text" placeholder="Введите сообщение" />
+                    <span class="field__error"></span>
                 </div>
-                <button class="message-form__send" type="submit">Отправить</button>
+                <button class="chat__input_send_message" type="submit"></button>
             </form>
         `;
         return this.compile(template, {});

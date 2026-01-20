@@ -17,7 +17,7 @@ export default class RegisterPage extends BasePage {
                 new Input({ name: "password", label: "Пароль", type: "password" }),
             ],
             submitButton: new Button({ label: "Создать аккаунт", type: "submit" }),
-            footer: '<a class="nav-link" href="#/login">Уже зарегистрированы?</a>',
+            altLink: { href: "#/login", text: "Уже зарегистрированы?" },
             onSubmit: (data) => mediator.emit("auth:register", data),
         });
         super({ form });
@@ -25,9 +25,12 @@ export default class RegisterPage extends BasePage {
 
     render(): HTMLElement {
         const template = `
-            <section class="page page--center">
-                {{{form}}}
+            <section class="input-page">
+                <div class="input-card">
+                    {{{form}}}
+                </div>
             </section>
+            <div class="page-bg"></div>
         `;
         return this.compile(template, this.props);
     }

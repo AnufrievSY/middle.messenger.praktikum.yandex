@@ -7,15 +7,26 @@ type ErrorPageProps = {
 
 export default class ErrorPage extends BasePage<ErrorPageProps> {
     render(): HTMLElement {
+        const imageSrc = `/images/errors/${this.props.code}.jpg`;
         const template = `
-            <section class="page page--center">
-                <div class="error">
-                    <h1 class="error__code">{{code}}</h1>
-                    <p class="error__message">{{message}}</p>
-                    <a class="nav-link" href="#/chats">Вернуться к чатам</a>
+            <section class="error">
+                <div class="tile tile--img">
+                    <img class="tile__img" src="{{imageSrc}}" alt="Error illustration" />
+                </div>
+                <div class="tile tile--code">
+                    <div class="code">{{code}}</div>
+                </div>
+                <div class="tile tile--text">
+                    <div class="spaced">
+                        <div class="spaced__line">{{message}}</div>
+                    </div>
+                </div>
+                <div class="tile tile--back">
+                    <a class="back" href="#/chats">go back</a>
                 </div>
             </section>
+            <div class="page-bg"></div>
         `;
-        return this.compile(template, this.props);
+        return this.compile(template, { ...this.props, imageSrc });
     }
 }

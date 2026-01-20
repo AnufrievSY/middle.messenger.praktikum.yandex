@@ -1,8 +1,10 @@
 export type ChatPreview = {
     id: number;
-    title: string;
-    lastMessage: string;
-    unread: number;
+    title_name: string;
+    title_date: string;
+    not_read_count: number;
+    last_message?: { author: string; text: string };
+    avatar: string;
 };
 
 export type Message = {
@@ -15,9 +17,30 @@ export type Message = {
 };
 
 const chats: ChatPreview[] = [
-    { id: 1, title: "Work", lastMessage: "План на сегодня готов", unread: 2 },
-    { id: 2, title: "Family", lastMessage: "Ужин в 19:00", unread: 0 },
-    { id: 3, title: "Design", lastMessage: "Новый макет готов", unread: 5 },
+    {
+        id: 1,
+        title_name: "User1",
+        title_date: "10:21",
+        not_read_count: 0,
+        last_message: { author: "User0", text: "SecondMsg" },
+        avatar: "/data/users/1/avatar.jpg",
+    },
+    {
+        id: 2,
+        title_name: "User2",
+        title_date: "09:10",
+        not_read_count: 7,
+        last_message: { author: "User2", text: "FirstMsg" },
+        avatar: "/data/users/2/avatar.jpg",
+    },
+    {
+        id: 3,
+        title_name: "User3",
+        title_date: "10:21",
+        not_read_count: 1,
+        last_message: { author: "User0", text: "SecondMsg" },
+        avatar: "/data/users/1/avatar.jpg",
+    },
 ];
 
 const messages: Message[] = [
