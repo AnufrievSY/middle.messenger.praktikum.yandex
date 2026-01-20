@@ -25,7 +25,7 @@ export default class ChatsPage extends BasePage {
                 }
             },
         });
-        super({ chatList, messageForm });
+        super({ chatList, messageForm, messagesVersion: 0 });
         this.chatList = chatList;
         this.messageForm = messageForm;
 
@@ -36,13 +36,14 @@ export default class ChatsPage extends BasePage {
 
         mediator.on("messages:update", (messages: Message[]) => {
             this.messages = messages;
-            this.setProps({});
+            this.setProps({ messagesVersion: Date.now() });
         });
 
         mediator.on("chat:active", (chatId: number) => {
             this.activeChatId = chatId;
             this.activeChat = this.chats.find((chat) => chat.id === chatId) ?? null;
             this.chatList.setProps({ activeChatId: chatId });
+            this.setProps({ messagesVersion: Date.now() });
         });
 
         mediator.emit("chats:request");
