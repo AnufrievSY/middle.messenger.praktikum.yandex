@@ -15,10 +15,12 @@ export default class ChatList extends Block<ChatListProps> {
         const target = event.target as HTMLElement;
         const item = target.closest<HTMLElement>("[data-chat-id]");
         if (!item) {
+            console.log("[ChatList] click ignored: no chat item", { target });
             return;
         }
         event.preventDefault();
         const chatId = Number(item.dataset.chatId);
+        console.log("[ChatList] chat selected", { chatId });
         this.props.onSelect?.(chatId);
     }
 
