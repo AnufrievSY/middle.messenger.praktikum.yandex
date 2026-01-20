@@ -49,9 +49,10 @@ npm run build
 
 Проверка типов и линтинга:
 ```bash
-npm run typecheck
 npm run lint
+npm run lint:eslint
 npm run lint:styles
+npm run typecheck
 ```
 
 Проект запускается на http://localhost:3000.

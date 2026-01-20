@@ -1,4 +1,11 @@
-export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE";
+export const HTTP_METHODS = {
+    GET: "GET",
+    POST: "POST",
+    PUT: "PUT",
+    DELETE: "DELETE",
+} as const;
+
+export type HTTPMethod = (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS];
 
 export type RequestOptions = {
     method?: HTTPMethod;
@@ -23,23 +30,23 @@ export default class HTTPTransport {
     get(url: string, options: RequestOptions = {}): Promise<unknown> {
         const { data, ...rest } = options;
         const query = data && typeof data === "object" ? buildQuery(data as Record<string, unknown>) : "";
-        return this.request(`${url}${query}`, { ...rest, method: "GET" });
+        return this.request(`${url}${query}`, { ...rest, method: HTTP_METHODS.GET });
     }
 
     post(url: string, options: RequestOptions = {}): Promise<unknown> {
-        return this.request(url, { ...options, method: "POST" });
+        return this.request(url, { ...options, method: HTTP_METHODS.POST });
     }
 
     put(url: string, options: RequestOptions = {}): Promise<unknown> {
-        return this.request(url, { ...options, method: "PUT" });
+        return this.request(url, { ...options, method: HTTP_METHODS.PUT });
     }
 
     delete(url: string, options: RequestOptions = {}): Promise<unknown> {
-        return this.request(url, { ...options, method: "DELETE" });
+        return this.request(url, { ...options, method: HTTP_METHODS.DELETE });
     }
 
     request(url: string, options: RequestOptions): Promise<unknown> {
-        const { method = "GET", data, headers = {}, timeout = 5000 } = options;
+        const { method = HTTP_METHODS.GET, data, headers = {}, timeout = 5000 } = options;
 
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -60,7 +67,7 @@ export default class HTTPTransport {
             xhr.ontimeout = () => reject(new Error("Request timeout"));
             xhr.timeout = timeout;
 
-            if (method === "GET" || data === undefined) {
+            if (method === HTTP_METHODS.GET || data === undefined) {
                 xhr.send();
             } else if (data instanceof FormData) {
                 xhr.send(data);

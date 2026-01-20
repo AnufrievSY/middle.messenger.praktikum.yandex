@@ -2,9 +2,9 @@ declare module "src/types/vite-plugin-handlebars" {
     import type { Plugin } from "vite";
 
     export interface HandlebarsPluginOptions {
-        context?: Record<string, any>;
+        context?: Record<string, unknown>;
         partialDirectory?: string | string[];
-        helpers?: Record<string, (...args: any[]) => any>;
+        helpers?: Record<string, (...args: unknown[]) => unknown>;
         reloadOnPartialChange?: boolean;
     }
 
