@@ -49,12 +49,13 @@ export default class ChatsPage extends BasePage {
     }
 
     private renderMessages(): string {
-        if (!this.messages.length) {
+        const messages = this.messages ?? [];
+        if (!messages.length) {
             return '<div class="chat__body_empty">No messages yet</div>';
         }
         return `
             <div class="chat__body_messages">
-                ${this.messages.map((message) => new ChatMessage(message).getContent().outerHTML).join("")}
+                ${messages.map((message) => new ChatMessage(message).getContent().outerHTML).join("")}
             </div>
         `;
     }
