@@ -1,0 +1,21 @@
+[
+  { "id": 1, "text": "1Msg", "time": "1:20", "isMine": false },
+  { "id": 2, "text": "2Msg", "time": "2:20", "isMine": true },
+  { "id": 3, "text": "3Msg", "time": "3:20", "isMine": false },
+  { "id": 4, "text": "4Msg", "time": "4:20", "isMine": true },
+  { "id": 5, "text": "5Msg", "time": "5:20", "isMine": false },
+  { "id": 6, "text": "6Msg", "time": "6:20", "isMine": true },
+  { "id": 7, "text": "7Msg", "time": "7:20", "isMine": false },
+  { "id": 8, "text": "8Msg", "time": "8:20", "isMine": true },
+  { "id": 9, "text": "9Msg", "time": "9:20", "isMine": false },
+  { "id": 10, "text": "10Msg", "time": "10:20", "isMine": true },
+  { "id": 11, "text": "11Msg", "time": "11:20", "isMine": false },
+  { "id": 12, "text": "12Msg", "time": "12:20", "isMine": true },
+  { "id": 13, "text": "13Msg", "time": "13:20", "isMine": false },
+  { "id": 14, "text": "14Msg", "time": "14:20", "isMine": false },
+  { "id": 15, "text": "15Msg", "time": "15:20", "isMine": false },
+  { "id": 16, "text": "16Msg", "time": "16:20", "isMine": false },
+  { "id": 17, "text": "17Msg", "time": "17:20", "isMine": false },
+  { "id": 18, "text": "18Msg", "time": "18:20", "isMine": false },
+  { "id": 19, "text": "19Msg", "time": "19:20", "isMine": false }
+]
