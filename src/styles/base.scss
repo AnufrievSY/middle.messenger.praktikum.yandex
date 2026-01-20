@@ -1,0 +1,23 @@
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    margin: 0;
+    background: #9c93e5;
+    overflow-x: hidden;
+    position: relative;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.page-bg {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 33.333vh;
+    background: url('/images/lower-background.png') no-repeat center top;
+    background-size: cover;
+    z-index: -10;
+    pointer-events: none;
+}
