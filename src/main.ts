@@ -10,20 +10,20 @@ import { ChatsPage } from './pages/Chats';
 import { ErrorPage } from './pages/Error';
 import mediator from './mediator/AppMediator';
 
-// import ChatController from './controllers/ChatController';
-// import AuthController from './controllers/AuthController';
-// import SettingsController from './controllers/SettingsController';
-// import ChatService from './services/chatService';
+import ChatController from './controllers/ChatController';
+import AuthController from './controllers/AuthController';
+import SettingsController from './controllers/SettingsController';
+import ChatService from './services/chatService';
 import AuthService from './services/authService';
-// import SettingsService from './services/settingsService';
+import SettingsService from './services/settingsService';
 
-// const chatService = new ChatService();
+const chatService = new ChatService();
 const authService = new AuthService();
-// const settingsService = new SettingsService();
+const settingsService = new SettingsService();
 
-// const chatController = new ChatController(chatService);
-// const authController = new AuthController(authService);
-// const settingsController = new SettingsController(settingsService);
+const chatController = new ChatController(chatService);
+const authController = new AuthController(authService);
+const settingsController = new SettingsController(settingsService);
 
 (window as unknown as { app?: { auth: AuthService } }).app = { auth: authService };
 
