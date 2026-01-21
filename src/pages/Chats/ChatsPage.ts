@@ -62,10 +62,9 @@ export default class ChatsPage extends BasePage {
     return `
             <div class="chat__body_messages">
                 ${messages.map((message) => new ChatMessage({
-    author: (message as any).author ?? (message as any).user ?? 'Unknown',
-    text: (message as any).text ?? '',
-    time: (message as any).time ?? '',
-    isMine: Boolean((message as any).isMine),
+    text: message.text ?? '',
+    time: message.time ?? '',
+    isMine: Boolean(message.isMine),
   }).getContent().outerHTML).join('')}
             </div>
         `;

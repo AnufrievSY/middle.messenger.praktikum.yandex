@@ -3,6 +3,8 @@ export type ValidationResult = {
   message: string;
 };
 
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,40}$/;
+
 const rules: Record<string, { regex: RegExp; message: string }> = {
   first_name: {
     regex: /^[A-ZА-ЯЁ][A-Za-zА-Яа-яЁё-]*$/,
@@ -21,7 +23,15 @@ const rules: Record<string, { regex: RegExp; message: string }> = {
     message: 'Введите корректный email',
   },
   password: {
-    regex: /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,40}$/,
+    regex: passwordRegex,
+    message: 'Пароль 8-40 символов, минимум одна заглавная буква и цифра',
+  },
+  old_password: {
+    regex: passwordRegex,
+    message: 'Пароль 8-40 символов, минимум одна заглавная буква и цифра',
+  },
+  new_password: {
+    regex: passwordRegex,
     message: 'Пароль 8-40 символов, минимум одна заглавная буква и цифра',
   },
   phone: {

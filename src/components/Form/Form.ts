@@ -8,7 +8,7 @@ export default class Form extends Block<FormProps> {
       ...props,
       events: {
         submit: (event) => this.handleSubmit(event),
-        blur: (event) => this.handleBlur(event),
+        focusout: (event) => this.handleBlur(event),
       },
     });
   }

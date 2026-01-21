@@ -8,7 +8,7 @@ export default class MessageForm extends Block<MessageFormProps> {
       ...props,
       events: {
         submit: (event) => this.handleSubmit(event),
-        blur: (event) => this.handleBlur(event),
+        focusout: (event) => this.handleBlur(event),
       },
     });
   }

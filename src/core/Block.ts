@@ -121,6 +121,7 @@ export default class Block<P extends BlockProps = BlockProps> {
       return;
     }
     if (this._element) {
+      this.removeEvents();
       this._element.replaceWith(newElement);
     }
     this._element = newElement;
@@ -134,6 +135,16 @@ export default class Block<P extends BlockProps = BlockProps> {
     }
     Object.entries(events).forEach(([event, listener]) => {
       this._element?.addEventListener(event, listener);
+    });
+  }
+
+  private removeEvents(): void {
+    const { events } = this.props;
+    if (!events || !this._element) {
+      return;
+    }
+    Object.entries(events).forEach(([event, listener]) => {
+      this._element?.removeEventListener(event, listener);
     });
   }
 
