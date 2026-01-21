@@ -3,3 +3,4 @@ build
 .idea
 .tmp-pages
 dist
+node_modules/
