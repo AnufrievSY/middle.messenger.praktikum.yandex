@@ -1,0 +1,21 @@
+.message-form {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.input-field--message {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.message-form__send {
+    background: #f64c72;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-weight: 600;
+}

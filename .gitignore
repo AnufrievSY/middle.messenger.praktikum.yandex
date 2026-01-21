@@ -1,5 +1,6 @@
-node_modules
+../middle.messenger.praktikum.yandex — копия/node_modules
 build
 .idea
 .tmp-pages
 dist
+node_modules/

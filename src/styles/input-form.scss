@@ -2,15 +2,13 @@
     position: relative;
     z-index: 1;
     min-height: 100vh;
-
     display: flex;
     justify-content: center;
     align-items: flex-start;
-
     padding: 10vh 16px 16px;
 }
 
-.back-btn{
+.back-btn {
     position: absolute;
     top: 20px;
     left: 20px;
@@ -21,56 +19,59 @@
     z-index: 5;
     opacity: .9;
 }
-.back-btn:hover{ opacity: 1; }
+
+.back-btn:hover {
+    opacity: 1;
+}
 
 .input-card {
     position: relative;
     z-index: 2;
-
     width: min(500px, 92vw);
     min-width: 300px;
-
     min-height: 420px;
     max-height: calc(100vh - 12vh - 32px);
     overflow: auto;
-
-    background-color: rgba(255, 254, 254, 0.7);
+    background-color: rgb(255 254 254 / 7%);
     border-radius: 15px;
     padding: 24px;
-
-    box-shadow: 0 14px 40px rgba(0,0,0,.18);
-
+    box-shadow: 0 14px 40px rgb(0 0 0 / 18%);
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.avatar-placeholder{
+.avatar-placeholder {
     width: 140px;
     height: 140px;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0 12px 30px rgba(0,0,0,.2);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 2%);
     margin: 0 auto 8px;
 }
 
-.input-title{
+.input-title {
     margin: 0;
     font-size: 22px;
     line-height: 1.2;
 }
-.input-subtitle{
+
+.input-subtitle {
     margin: 0 0 6px;
     opacity: .7;
 }
 
-.input-form{
+.input-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.field { display: flex; flex-direction: column; gap: 6px; }
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
 .field__label {
     display: block;
@@ -83,35 +84,41 @@
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(0,0,0,.55);
+    border-bottom: 1px solid rgb(0 0 0 / 55%);
     padding: 8px 4px;
     font-size: 16px;
     outline: none;
 }
 
 .field__input:focus {
-    border-bottom-color: rgba(0,0,0,.85);
+    border-bottom-color: rgb(0 0 0 / 85%);
+}
+
+.field__error {
+    min-height: 12px;
+    font-size: 11px;
+    color: #d32525;
+}
+
+.field--invalid .field__input {
+    border-bottom-color: red;
+    background-color: rgb(255 0 0 / 8%);
 }
 
 .btn {
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 100%;
     padding: 12px 14px;
     border-radius: 10px;
-
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-
     border: 0;
     font: inherit;
     line-height: 1;
-
     appearance: none;
-    -webkit-appearance: none;
 }
 
 .submit-btn {
@@ -128,10 +135,5 @@
 .alt-btn {
     background: transparent;
     color: #3a2a4c;
-    border: 1px solid rgba(0,0,0,.15);
-}
-
-.input-error {
-    border-bottom-color: red !important;
-    background-color: rgba(255, 0, 0, 0.08);
+    border: 1px solid rgb(0 0 0 / 15%);
 }
