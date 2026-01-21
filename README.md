@@ -36,7 +36,7 @@ npm run lint:styles
 npm run typecheck
 ```
 
-Запущенно на [Netlify](https://taupe-beijinho-bc1893.netlify.app/)
+Запущенно на [Netlify](https://middle-messennger-praktikum-yandex.netlify.app)
 
 ## Тестовый пользователь
 
