@@ -36,7 +36,7 @@ npm run lint:styles
 npm run typecheck
 ```
 
-Проект запускается на http://localhost:3000.
+Запущенно на [Netlify](https://taupe-beijinho-bc1893.netlify.app/)
 
 ## Тестовый пользователь
 
