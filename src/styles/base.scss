@@ -11,7 +11,12 @@ body {
     background: #9c93e5;
     overflow-x: hidden;
     position: relative;
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
 }
 
 .page-bg {
