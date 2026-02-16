@@ -1,55 +1,66 @@
-import HTTPTransport from './httpTransport';
+import ChatApiService from './chatApiService';
+import ChatSocketService from './chatSocketService';
+import { ChatPreview, ChatUser, SocketEventPayload } from './chatTypes';
 
-export type ChatPreview = {
-  id: number;
-  title_name: string;
-  title_date: string;
-  not_read_count: number;
-  last_message?: { author: string; text: string };
-  avatar: string;
-};
-
-export type Message = {
-  id: number;
-  text: string;
-  time: string;
-  isMine?: boolean;
-  chatId?: number;
-};
+export type {
+  ChatPreview, Message, MessageStatus, ChatUser,
+} from './chatTypes';
 
 export default class ChatService {
-  private transport = new HTTPTransport();
+  private apiService = new ChatApiService();
 
-  private messagesCache = new Map<number, Message[]>();
-
-  private readonly userId = 0;
+  private socketService = new ChatSocketService();
 
   async getChats(): Promise<ChatPreview[]> {
-    const response = await this.transport.get(`/data/users/${this.userId}/chats.json`);
-    return Array.isArray(response) ? (response as ChatPreview[]) : [];
+    return this.apiService.getChats();
   }
 
-  async getMessages(chatId: number): Promise<Message[]> {
-    if (this.messagesCache.has(chatId)) {
-      return this.messagesCache.get(chatId) ?? [];
-    }
-    const response = await this.transport.get(`/data/users/${this.userId}/messages/${chatId}.json`);
-    const list = Array.isArray(response) ? (response as Message[]) : [];
-    this.messagesCache.set(chatId, list);
-    return list;
+  async createChat(title: string): Promise<number> {
+    return this.apiService.createChat(title);
   }
 
-  async sendMessage(chatId: number, text: string): Promise<Message> {
-    const messages = await this.getMessages(chatId);
-    const message: Message = {
-      id: Date.now(),
-      chatId,
-      text,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      isMine: true,
-    };
-    messages.push(message);
-    this.messagesCache.set(chatId, messages);
-    return message;
+  async deleteChat(chatId: number): Promise<void> {
+    await this.apiService.deleteChat(chatId);
+  }
+
+  async updateChatTitle(chatId: number, title: string): Promise<void> {
+    await this.apiService.updateChatTitle(chatId, title);
+  }
+
+  async updateChatAvatar(chatId: number, file: File): Promise<void> {
+    await this.apiService.updateChatAvatar(chatId, file);
+  }
+
+  async getChatUsers(chatId: number): Promise<ChatUser[]> {
+    return this.apiService.getChatUsers(chatId);
+  }
+
+  async addUserToChat(userId: number, chatId: number): Promise<void> {
+    await this.apiService.addUserToChat(userId, chatId);
+  }
+
+  async removeUserFromChat(userId: number, chatId: number): Promise<void> {
+    await this.apiService.removeUserFromChat(userId, chatId);
+  }
+
+  async getToken(chatId: number): Promise<string> {
+    return this.apiService.getToken(chatId);
+  }
+
+  connect(
+    chatId: number,
+    userId: number,
+    token: string,
+    onMessages: (payload: SocketEventPayload) => void,
+  ): void {
+    this.socketService.connect(chatId, userId, token, onMessages);
+  }
+
+  sendMessage(message: string, onSent?: () => void): void {
+    this.socketService.sendMessage(message, onSent);
+  }
+
+  disconnect(): void {
+    this.socketService.disconnect();
   }
 }

@@ -7,11 +7,11 @@ const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,40}$/;
 
 const rules: Record<string, { regex: RegExp; message: string }> = {
   first_name: {
-    regex: /^[A-ZА-ЯЁ][A-Za-zА-Яа-яЁё-]*$/,
+    regex: /^[A-ZА-ЯЁ][A-Za-zА-Яа-яЁё\s'-]*$/,
     message: 'Имя должно начинаться с заглавной буквы и содержать только буквы или дефис',
   },
   second_name: {
-    regex: /^[A-ZА-ЯЁ][A-Za-zА-Яа-яЁё-]*$/,
+    regex: /^[A-ZА-ЯЁ][A-Za-zА-Яа-яЁё\s'-]*$/,
     message: 'Фамилия должна начинаться с заглавной буквы и содержать только буквы или дефис',
   },
   login: {

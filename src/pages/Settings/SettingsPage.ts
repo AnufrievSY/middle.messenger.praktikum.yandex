@@ -3,72 +3,169 @@ import { Form } from '../../components/Form';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import mediator from '../../mediator/AppMediator';
+import AuthService from '../../services/authService';
+import { APP_EVENTS } from '../../events';
 
 export default class SettingsPage extends BasePage {
   constructor() {
+    const auth = (window as unknown as { app?: { auth?: AuthService } }).app?.auth;
+    const user = auth?.getCurrentUser();
+    const avatarPreview = user?.avatar
+      ? `https://ya-praktikum.tech/api/v2/resources${user.avatar}`
+      : '/data/users/1/avatar.jpg';
+
     const profileForm = new Form({
-      title: 'Данные профиля',
       fields: [
         new Input({
-          name: 'email', label: 'Email', type: 'email', value: 'user@example.com',
+          name: 'email',
+          label: 'Email',
+          type: 'email',
+          value: user?.email ?? '',
         }),
         new Input({
-          name: 'phone', label: 'Телефон', type: 'tel', value: '+79999999999',
+          name: 'phone',
+          label: 'Телефон',
+          type: 'tel',
+          value: user?.phone ?? '',
         }),
-        new Input({ name: 'login', label: 'Логин', value: 'yandex_user' }),
-        new Input({ name: 'first_name', label: 'Имя', value: 'Иван' }),
-        new Input({ name: 'second_name', label: 'Фамилия', value: 'Петров' }),
+        new Input({ name: 'login', label: 'Логин', value: user?.login ?? '' }),
+        new Input({ name: 'first_name', label: 'Имя', value: user?.first_name ?? '' }),
+        new Input({ name: 'second_name', label: 'Фамилия', value: user?.second_name ?? '' }),
       ],
-      submitButton: new Button({ label: 'Сохранить данные', type: 'submit' }),
-      onSubmit: (data) => mediator.emit('settings:update', {
-        email: data.email ?? '',
-        phone: data.phone ?? '',
-        login: data.login ?? '',
-        first_name: data.first_name ?? '',
-        second_name: data.second_name ?? '',
-        password: '',
+      onSubmit: (data) => mediator.emit(APP_EVENTS.settingsUpdate, {
+        email: String(data.email ?? ''),
+        phone: String(data.phone ?? ''),
+        login: String(data.login ?? ''),
+        first_name: String(data.first_name ?? ''),
+        second_name: String(data.second_name ?? ''),
       }),
     });
+
     const passwordForm = new Form({
-      title: 'Пароль',
-      subtitle: 'Изменение пароля',
       fields: [
         new Input({ name: 'old_password', label: 'Старый пароль', type: 'password' }),
         new Input({ name: 'new_password', label: 'Новый пароль', type: 'password' }),
       ],
-      submitButton: new Button({ label: 'Обновить пароль', type: 'submit' }),
-      onSubmit: (data) => {
-        console.log('Password change', data);
+      onSubmit: (data) => mediator.emit(APP_EVENTS.settingsPassword, {
+        oldPassword: String(data.old_password ?? ''),
+        newPassword: String(data.new_password ?? ''),
+      }),
+    });
+
+    const logoutButton = new Button({
+      label: 'Выйти',
+      type: 'button',
+      events: {
+        click: () => mediator.emit(APP_EVENTS.authLogout),
       },
     });
-    const avatarForm = new Form({
-      title: 'Аватар',
-      subtitle: 'Загрузка нового аватара',
-      fields: [
-        new Input({ name: 'avatar', label: 'Файл', type: 'file' }),
-      ],
-      submitButton: new Button({ label: 'Обновить аватар', type: 'submit' }),
-      altLink: { href: '#/chats', text: 'Назад к чатам' },
-      onSubmit: (data) => {
-        console.log('Avatar change', data);
-      },
+
+    super({
+      profileForm,
+      passwordForm,
+      logoutButton,
+      avatarPreview,
     });
-    super({ profileForm, passwordForm, avatarForm });
+  }
+
+  private handleAvatarChange(file: File, element: HTMLElement): void {
+    const previewUrl = URL.createObjectURL(file);
+    const avatarImage = element.querySelector<HTMLImageElement>('.settings-avatar-img');
+    if (avatarImage) {
+      avatarImage.src = previewUrl;
+    }
+    mediator.emit(APP_EVENTS.settingsAvatar, file);
+  }
+
+  private markDirty(form: HTMLFormElement, saveButton: HTMLButtonElement): void {
+    form.dataset.dirty = 'true';
+    saveButton.classList.add('settings-top-save--visible');
+  }
+
+  private clearDirty(form: HTMLFormElement): void {
+    form.dataset.dirty = 'false';
+  }
+
+  private refreshSaveButton(forms: HTMLFormElement[], saveButton: HTMLButtonElement): void {
+    const hasDirtyForm = forms.some((form) => form.dataset.dirty === 'true');
+    saveButton.classList.toggle('settings-top-save--visible', hasDirtyForm);
   }
 
   render(): HTMLElement {
     const template = `
             <section class="input-page">
-                <a class="back-btn" href="#/chats" aria-label="Назад">‹</a>
+                <a class="back-btn" href="/messenger" aria-label="Назад">‹</a>
+                <button class="settings-top-save" id="settings-top-save" type="button" aria-label="Сохранить">✓</button>
                 <div class="input-card">
-                    <div class="avatar-placeholder" aria-hidden="true"></div>
+                    <div class="settings-avatar-block">
+                      <button type="button" id="settings-avatar-trigger" class="settings-avatar-btn" aria-label="Изменить аватар">
+                        <img class="settings-avatar-img" src="{{avatarPreview}}" alt="Аватар пользователя" />
+                      </button>
+                      <input id="settings-avatar-input" class="settings-avatar-input" name="avatar" type="file" accept="image/*" />
+                    </div>
                     {{{profileForm}}}
                     {{{passwordForm}}}
-                    {{{avatarForm}}}
+                    {{{logoutButton}}}
                 </div>
             </section>
             <div class="page-bg"></div>
         `;
-    return this.compile(template, this.props);
+
+    const element = this.compile(template, this.props);
+
+    const avatarTrigger = element.querySelector<HTMLButtonElement>('#settings-avatar-trigger');
+    const avatarInput = element.querySelector<HTMLInputElement>('#settings-avatar-input');
+    const saveButton = element.querySelector<HTMLButtonElement>('#settings-top-save');
+    const forms = Array.from(element.querySelectorAll<HTMLFormElement>('.input-form'));
+
+    let activeForm: HTMLFormElement | null = null;
+
+    avatarTrigger?.addEventListener('click', () => avatarInput?.click());
+    avatarInput?.addEventListener('change', () => {
+      const file = avatarInput.files?.[0];
+      if (!file) {
+        return;
+      }
+      this.handleAvatarChange(file, element);
+      avatarInput.value = '';
+    });
+
+    forms.forEach((form) => {
+      form.dataset.dirty = 'false';
+
+      form.addEventListener('focusin', () => {
+        activeForm = form;
+      });
+
+      const formInputs = Array.from(form.querySelectorAll<HTMLInputElement>('input'));
+      formInputs.forEach((input) => {
+        input.addEventListener('input', () => {
+          activeForm = form;
+          if (saveButton) {
+            this.markDirty(form, saveButton);
+            this.refreshSaveButton(forms, saveButton);
+          }
+        });
+      });
+
+      form.addEventListener('submit', () => {
+        this.clearDirty(form);
+        if (saveButton) {
+          this.refreshSaveButton(forms, saveButton);
+        }
+      });
+    });
+
+    saveButton?.addEventListener('click', () => {
+      const targetForm = activeForm?.dataset.dirty === 'true'
+        ? activeForm
+        : forms.find((form) => form.dataset.dirty === 'true') ?? null;
+
+      if (targetForm) {
+        targetForm.requestSubmit();
+      }
+    });
+
+    return element;
   }
 }

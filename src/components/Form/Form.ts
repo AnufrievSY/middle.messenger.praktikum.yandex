@@ -1,5 +1,6 @@
 import Block from '../../core/Block';
-import { validateField, validateForm, showFieldError } from '../../utils/validation';
+import { validateField, showFieldError } from '../../utils/validation';
+import { collectFormValues, validateHtmlForm } from './formUtils';
 import { FormProps } from './types';
 
 export default class Form extends Block<FormProps> {
@@ -15,7 +16,7 @@ export default class Form extends Block<FormProps> {
 
   private handleBlur(event: Event): void {
     const target = event.target as HTMLInputElement | null;
-    if (!target || target.tagName !== 'INPUT') {
+    if (!target || target.tagName !== 'INPUT' || target.type === 'file') {
       return;
     }
     const result = validateField(target.name, target.value);
@@ -25,17 +26,11 @@ export default class Form extends Block<FormProps> {
   private handleSubmit(event: Event): void {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
-    const isValid = validateForm(form);
-    if (!isValid) {
+    if (!validateHtmlForm(form)) {
       return;
     }
-    const data: Record<string, string> = {};
-    const inputs = Array.from(form.querySelectorAll<HTMLInputElement>('input'));
-    inputs.forEach((input) => {
-      data[input.name] = input.value;
-    });
-    console.log('Form data', data);
-    this.props.onSubmit?.(data);
+
+    this.props.onSubmit?.(collectFormValues(form));
   }
 
   render(): HTMLElement {
@@ -44,19 +39,21 @@ export default class Form extends Block<FormProps> {
     const altLinkMarkup = this.props.altLink
       ? `<a class="btn alt-btn" href="${this.props.altLink.href}">${this.props.altLink.text}</a>`
       : '';
+    const titleMarkup = this.props.title ? `<h1 class="input-title">${this.props.title}</h1>` : '';
+
     const template = `
             <form class="input-form">
-                <h1 class="input-title">{{title}}</h1>
+                ${titleMarkup}
                 {{subtitle}}
                 {{fields}}
-                {{{submitButton}}}
+                {{submitButton}}
                 {{altLink}}
             </form>
         `;
+
     return this.compile(template, {
-      title: this.props.title,
       fields: fieldsMarkup,
-      submitButton: this.props.submitButton,
+      submitButton: this.props.submitButton ? this.props.submitButton.getContent().outerHTML : '',
       subtitle: subtitleMarkup,
       altLink: altLinkMarkup,
     });
