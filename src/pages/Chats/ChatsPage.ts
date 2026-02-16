@@ -3,8 +3,7 @@ import { ChatList } from '../../components/ChatList';
 import { ChatMessage } from '../../components/ChatMessage';
 import { MessageForm } from '../../components/MessageForm';
 import mediator from '../../mediator/AppMediator';
-import { ChatPreview, Message } from '../../controllers/ChatController';
-import { ChatUser } from '../../services/chatService';
+import { ChatPreview, Message, ChatUser } from '../../services/chatService';
 
 export default class ChatsPage extends BasePage {
   private messages: Message[] = [];
@@ -85,11 +84,13 @@ export default class ChatsPage extends BasePage {
   }
 
   private handleCreateChat(): void {
+    // eslint-disable-next-line no-alert
     const title = window.prompt('Название чата');
     if (!title) {
       return;
     }
 
+    // eslint-disable-next-line no-alert
     const userLogin = window.prompt('Логин пользователя (необязательно)') ?? '';
     mediator.emit('chats:create', { title, userLogin });
   }
