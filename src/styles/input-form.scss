@@ -38,16 +38,7 @@
     box-shadow: 0 14px 40px rgb(0 0 0 / 18%);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-}
-
-.avatar-placeholder {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 12px 30px rgb(0 0 0 / 2%);
-    margin: 0 auto 8px;
+    gap: 10px;
 }
 
 .input-title {
@@ -62,9 +53,63 @@
 }
 
 .input-form {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+}
+
+.form-dirty-save-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    background: #7f4ea8;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.form-dirty-save-btn:hover {
+    background: #5b4db2;
+}
+
+.settings-avatar-block {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.settings-avatar-btn {
+    border: 0;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.settings-avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #fff;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 2%);
+}
+
+.settings-avatar-hint {
+    color: #3a2a4c;
+    font-size: 13px;
+}
+
+.settings-avatar-input {
+    display: none;
 }
 
 .field {

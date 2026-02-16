@@ -6,9 +6,11 @@ export default class Form extends Block<FormProps> {
   constructor(props: FormProps) {
     super({
       ...props,
+      isDirty: false,
       events: {
         submit: (event) => this.handleSubmit(event),
         focusout: (event) => this.handleBlur(event),
+        input: (event) => this.handleInput(event),
       },
     });
   }
@@ -22,6 +24,15 @@ export default class Form extends Block<FormProps> {
     showFieldError(target, result);
   }
 
+  private handleInput(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    if (!target || target.tagName !== 'INPUT' || !this.props.dirtySaveEnabled || this.props.isDirty) {
+      return;
+    }
+
+    this.setProps({ isDirty: true });
+  }
+
   private handleSubmit(event: Event): void {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -29,6 +40,7 @@ export default class Form extends Block<FormProps> {
     if (!isValid) {
       return;
     }
+
     const data: Record<string, FormValue> = {};
     const inputs = Array.from(form.querySelectorAll<HTMLInputElement>('input'));
     inputs.forEach((input) => {
@@ -41,7 +53,11 @@ export default class Form extends Block<FormProps> {
         data[input.name] = input.value;
       }
     });
+
     this.props.onSubmit?.(data);
+    if (this.props.dirtySaveEnabled) {
+      this.setProps({ isDirty: false });
+    }
   }
 
   render(): HTMLElement {
@@ -50,19 +66,25 @@ export default class Form extends Block<FormProps> {
     const altLinkMarkup = this.props.altLink
       ? `<a class="btn alt-btn" href="${this.props.altLink.href}">${this.props.altLink.text}</a>`
       : '';
+    const titleMarkup = this.props.title ? `<h1 class="input-title">${this.props.title}</h1>` : '';
+    const saveDirtyButtonMarkup = this.props.dirtySaveEnabled && this.props.isDirty
+      ? '<button class="form-dirty-save-btn" type="submit" aria-label="Сохранить">✓</button>'
+      : '';
+
     const template = `
             <form class="input-form">
-                <h1 class="input-title">{{title}}</h1>
+                ${saveDirtyButtonMarkup}
+                ${titleMarkup}
                 {{subtitle}}
                 {{fields}}
-                {{{submitButton}}}
+                {{submitButton}}
                 {{altLink}}
             </form>
         `;
+
     return this.compile(template, {
-      title: this.props.title,
       fields: fieldsMarkup,
-      submitButton: this.props.submitButton,
+      submitButton: this.props.submitButton ? this.props.submitButton.getContent().outerHTML : '',
       subtitle: subtitleMarkup,
       altLink: altLinkMarkup,
     });
