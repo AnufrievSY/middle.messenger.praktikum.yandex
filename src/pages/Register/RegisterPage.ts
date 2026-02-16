@@ -3,6 +3,7 @@ import { Form } from '../../components/Form';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import mediator from '../../mediator/AppMediator';
+import { APP_EVENTS } from '../../events';
 
 export default class RegisterPage extends BasePage {
   constructor() {
@@ -17,14 +18,14 @@ export default class RegisterPage extends BasePage {
         new Input({ name: 'password', label: 'Пароль', type: 'password' }),
       ],
       submitButton: new Button({ label: 'Создать аккаунт', type: 'submit' }),
-      altLink: { href: '#/login', text: 'Уже зарегистрированы?' },
-      onSubmit: (data) => mediator.emit('auth:register', {
-        email: data.email ?? '',
-        phone: data.phone ?? '',
-        login: data.login ?? '',
-        first_name: data.first_name ?? '',
-        second_name: data.second_name ?? '',
-        password: data.password ?? '',
+      altLink: { href: '/', text: 'Уже зарегистрированы?' },
+      onSubmit: (data) => mediator.emit(APP_EVENTS.authRegister, {
+        email: String(data.email ?? ''),
+        phone: String(data.phone ?? ''),
+        login: String(data.login ?? ''),
+        first_name: String(data.first_name ?? ''),
+        second_name: String(data.second_name ?? ''),
+        password: String(data.password ?? ''),
       }),
     });
     super({ form });
