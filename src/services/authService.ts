@@ -63,4 +63,8 @@ export default class AuthService {
   getCurrentUser(): User | null {
     return this.currentUser;
   }
+
+  setCurrentUser(user: User | null): void {
+    this.currentUser = user;
+  }
 }

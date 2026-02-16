@@ -26,7 +26,7 @@ const authController = new AuthController(authService);
 // eslint-disable-next-line no-new
 new ChatController(chatService, authService);
 // eslint-disable-next-line no-new
-new SettingsController(settingsService);
+new SettingsController(settingsService, authService);
 
 (window as unknown as { app?: { auth: AuthService } }).app = { auth: authService };
 

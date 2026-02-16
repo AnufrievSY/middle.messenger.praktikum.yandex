@@ -14,8 +14,6 @@ export default class SettingsPage extends BasePage {
       : '/data/users/1/avatar.jpg';
 
     const profileForm = new Form({
-      title: 'Данные профиля',
-      dirtySaveEnabled: true,
       fields: [
         new Input({
           name: 'email',
@@ -43,8 +41,6 @@ export default class SettingsPage extends BasePage {
     });
 
     const passwordForm = new Form({
-      title: 'Пароль',
-      dirtySaveEnabled: true,
       fields: [
         new Input({ name: 'old_password', label: 'Старый пароль', type: 'password' }),
         new Input({ name: 'new_password', label: 'Новый пароль', type: 'password' }),
@@ -80,21 +76,30 @@ export default class SettingsPage extends BasePage {
     mediator.emit('settings:avatar', file);
   }
 
+  private markDirty(form: HTMLFormElement, saveButton: HTMLButtonElement): void {
+    form.dataset.dirty = 'true';
+    saveButton.classList.add('settings-top-save--visible');
+  }
+
+  private clearDirty(form: HTMLFormElement, saveButton: HTMLButtonElement): void {
+    form.dataset.dirty = 'false';
+    saveButton.classList.remove('settings-top-save--visible');
+  }
+
   render(): HTMLElement {
     const template = `
             <section class="input-page">
                 <a class="back-btn" href="/messenger" aria-label="Назад">‹</a>
+                <button class="settings-top-save" id="settings-top-save" type="button" aria-label="Сохранить">✓</button>
                 <div class="input-card">
                     <div class="settings-avatar-block">
                       <button type="button" id="settings-avatar-trigger" class="settings-avatar-btn" aria-label="Изменить аватар">
                         <img class="settings-avatar-img" src="{{avatarPreview}}" alt="Аватар пользователя" />
-                        <span class="settings-avatar-hint">Изменить аватар</span>
                       </button>
                       <input id="settings-avatar-input" class="settings-avatar-input" name="avatar" type="file" accept="image/*" />
                     </div>
                     {{{profileForm}}}
                     {{{passwordForm}}}
-                    <a class="btn alt-btn" href="/messenger">Назад к чатам</a>
                     {{{logoutButton}}}
                 </div>
             </section>
@@ -109,6 +114,10 @@ export default class SettingsPage extends BasePage {
     const element = this.getContent();
     const avatarTrigger = element.querySelector<HTMLButtonElement>('#settings-avatar-trigger');
     const avatarInput = element.querySelector<HTMLInputElement>('#settings-avatar-input');
+    const saveButton = element.querySelector<HTMLButtonElement>('#settings-top-save');
+    const forms = Array.from(element.querySelectorAll<HTMLFormElement>('.input-form'));
+
+    let activeForm: HTMLFormElement | null = null;
 
     avatarTrigger?.addEventListener('click', () => avatarInput?.click());
     avatarInput?.addEventListener('change', () => {
@@ -118,6 +127,30 @@ export default class SettingsPage extends BasePage {
       }
       this.handleAvatarChange(file);
       avatarInput.value = '';
+    });
+
+    forms.forEach((form) => {
+      form.dataset.dirty = 'false';
+      form.addEventListener('focusin', () => {
+        activeForm = form;
+      });
+      form.addEventListener('input', () => {
+        activeForm = form;
+        if (saveButton) {
+          this.markDirty(form, saveButton);
+        }
+      });
+      form.addEventListener('submit', () => {
+        if (saveButton) {
+          this.clearDirty(form, saveButton);
+        }
+      });
+    });
+
+    saveButton?.addEventListener('click', () => {
+      if (activeForm && activeForm.dataset.dirty === 'true') {
+        activeForm.requestSubmit();
+      }
     });
   }
 }

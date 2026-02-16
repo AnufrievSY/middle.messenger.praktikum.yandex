@@ -24,6 +24,30 @@
     opacity: 1;
 }
 
+.settings-top-save {
+    position: absolute;
+    top: 26px;
+    right: 22px;
+    z-index: 5;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: #7f4ea8;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+
+.settings-top-save--visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .input-card {
     position: relative;
     z-index: 2;
@@ -38,7 +62,7 @@
     box-shadow: 0 14px 40px rgb(0 0 0 / 18%);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .input-title {
@@ -56,32 +80,13 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.form-dirty-save-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 28px;
-    height: 28px;
-    border: 0;
-    border-radius: 50%;
-    cursor: pointer;
-    background: #7f4ea8;
-    color: #fff;
-    font-size: 16px;
-    line-height: 1;
-}
-
-.form-dirty-save-btn:hover {
-    background: #5b4db2;
+    gap: 8px;
 }
 
 .settings-avatar-block {
     display: flex;
     justify-content: center;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .settings-avatar-btn {
@@ -90,7 +95,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
     cursor: pointer;
 }
 
@@ -101,11 +105,6 @@
     object-fit: cover;
     background: #fff;
     box-shadow: 0 12px 30px rgb(0 0 0 / 2%);
-}
-
-.settings-avatar-hint {
-    color: #3a2a4c;
-    font-size: 13px;
 }
 
 .settings-avatar-input {

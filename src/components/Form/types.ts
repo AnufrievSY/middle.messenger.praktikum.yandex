@@ -10,7 +10,5 @@ export type FormProps = BlockProps & {
   altLink?: { href: string; text: string };
   fields: Input[];
   submitButton?: Button;
-  dirtySaveEnabled?: boolean;
-  isDirty?: boolean;
   onSubmit?: (data: Record<string, FormValue>) => void;
 };
