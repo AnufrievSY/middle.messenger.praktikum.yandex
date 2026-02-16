@@ -25,6 +25,10 @@ export default class ChatsPage extends BasePage {
 
   private userError = '';
 
+  private isTitleEditing = false;
+
+  private draftChatTitle = '';
+
   constructor() {
     const chatList = new ChatList({
       chats: [],
@@ -96,13 +100,57 @@ export default class ChatsPage extends BasePage {
     }
 
     this.isChatEditorOpen = true;
+    this.isTitleEditing = false;
+    this.draftChatTitle = this.activeChat?.title ?? '';
     mediator.emit('chats:users:request', this.activeChatId);
     this.setProps({ editorVersion: Date.now() });
   }
 
   private closeChatEditor(): void {
     this.isChatEditorOpen = false;
+    this.isTitleEditing = false;
     this.setProps({ editorVersion: Date.now() });
+  }
+
+  private startTitleEditing(): void {
+    this.isTitleEditing = true;
+    this.draftChatTitle = this.activeChat?.title ?? '';
+    this.setProps({ editorVersion: Date.now() });
+  }
+
+  private stopTitleEditing(): void {
+    this.isTitleEditing = false;
+    this.draftChatTitle = this.activeChat?.title ?? '';
+    this.setProps({ editorVersion: Date.now() });
+  }
+
+  private saveTitleChange(): void {
+    if (!this.activeChatId) {
+      return;
+    }
+
+    const title = this.draftChatTitle.trim();
+    if (!title || title === this.activeChat?.title) {
+      this.stopTitleEditing();
+      return;
+    }
+
+    mediator.emit('chats:rename', { chatId: this.activeChatId, title });
+    this.isTitleEditing = false;
+    this.setProps({ editorVersion: Date.now() });
+  }
+
+  private handleTitleInput(value: string): void {
+    this.draftChatTitle = value;
+    this.setProps({ editorVersion: Date.now() });
+  }
+
+  private handleChatAvatarUpload(file: File): void {
+    if (!this.activeChatId) {
+      return;
+    }
+
+    mediator.emit('chats:avatar', { chatId: this.activeChatId, file });
   }
 
   private addUserByLogin(form: HTMLFormElement): void {
@@ -122,38 +170,6 @@ export default class ChatsPage extends BasePage {
 
     mediator.emit('chats:add-user', { login, chatId: this.activeChatId });
     input.value = '';
-  }
-
-  private renameChat(form: HTMLFormElement): void {
-    if (!this.activeChatId) {
-      return;
-    }
-
-    const input = form.querySelector<HTMLInputElement>('input[name="chat-title"]');
-    if (!input) {
-      return;
-    }
-
-    const title = input.value.trim();
-    if (!title) {
-      return;
-    }
-
-    mediator.emit('chats:rename', { chatId: this.activeChatId, title });
-  }
-
-  private updateChatAvatar(form: HTMLFormElement): void {
-    if (!this.activeChatId) {
-      return;
-    }
-
-    const input = form.querySelector<HTMLInputElement>('input[name="chat-avatar"]');
-    const file = input?.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    mediator.emit('chats:avatar', { chatId: this.activeChatId, file });
   }
 
   private removeUser(userId: number): void {
@@ -198,17 +214,25 @@ export default class ChatsPage extends BasePage {
     return `
       <div class="chat-editor-overlay" id="chat-editor-overlay">
         <aside class="chat-editor chat-editor--modal" role="dialog" aria-modal="true" aria-label="Настройки чата">
-          <h3 class="chat-editor__title">${this.activeChat?.title ?? 'ChatName'}</h3>
+          <button type="button" id="close-chat-editor-btn" class="chat-editor__close-btn" aria-label="Закрыть">✖</button>
 
-          <form class="chat-editor__form" id="chat-rename-form">
-            <input class="field__input" name="chat-title" type="text" placeholder="Новое название чата" value="${this.activeChat?.title ?? ''}" />
-            <button type="submit" class="btn submit-btn">Сохранить название</button>
-          </form>
+          <button type="button" id="chat-avatar-trigger" class="chat-editor__avatar-btn" aria-label="Изменить аватар чата">
+            <img src="${this.activeChat?.avatar ? `https://ya-praktikum.tech/api/v2/resources${this.activeChat.avatar}` : '/data/users/1/avatar.jpg'}" alt="Chat avatar" class="chat-editor__main-avatar" />
+          </button>
+          <input id="chat-avatar-input" class="chat-editor__avatar-input" name="chat-avatar" type="file" accept="image/*" />
 
-          <form class="chat-editor__form" id="chat-avatar-form">
-            <input class="field__input" name="chat-avatar" type="file" accept="image/*" />
-            <button type="submit" class="btn submit-btn">Обновить аватар</button>
-          </form>
+          <div class="chat-editor__title-wrap ${this.isTitleEditing ? 'chat-editor__title-wrap--editing' : ''}">
+            <input
+              id="chat-title-input"
+              class="chat-editor__title-input"
+              type="text"
+              value="${this.draftChatTitle || this.activeChat?.title || ''}"
+              ${this.isTitleEditing ? '' : 'readonly'}
+            />
+            ${this.isTitleEditing && this.draftChatTitle.trim() !== (this.activeChat?.title ?? '')
+    ? '<button type="button" id="chat-title-save" class="chat-editor__title-save" aria-label="Сохранить">✓</button>'
+    : ''}
+          </div>
 
           <ul class="chat-editor__users">${usersMarkup}</ul>
 
@@ -220,8 +244,6 @@ export default class ChatsPage extends BasePage {
               <button type="button" id="delete-chat-btn" class="btn alt-btn">delete chat</button>
             </div>
           </form>
-
-          <button type="button" id="close-chat-editor-btn" class="btn alt-btn">Закрыть</button>
         </aside>
       </div>
     `;
@@ -363,22 +385,42 @@ export default class ChatsPage extends BasePage {
     const closeBtn = element.querySelector<HTMLButtonElement>('#close-chat-editor-btn');
     closeBtn?.addEventListener('click', () => this.closeChatEditor());
 
+    const titleInput = element.querySelector<HTMLInputElement>('#chat-title-input');
+    titleInput?.addEventListener('click', () => this.startTitleEditing());
+    titleInput?.addEventListener('input', (event) => {
+      const { value } = event.currentTarget as HTMLInputElement;
+      this.handleTitleInput(value);
+    });
+    titleInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        this.saveTitleChange();
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        this.stopTitleEditing();
+      }
+    });
+
+    const titleSaveBtn = element.querySelector<HTMLButtonElement>('#chat-title-save');
+    titleSaveBtn?.addEventListener('click', () => this.saveTitleChange());
+
+    const avatarTriggerBtn = element.querySelector<HTMLButtonElement>('#chat-avatar-trigger');
+    const avatarInput = element.querySelector<HTMLInputElement>('#chat-avatar-input');
+    avatarTriggerBtn?.addEventListener('click', () => {
+      avatarInput?.click();
+    });
+    avatarInput?.addEventListener('change', () => {
+      const file = avatarInput.files?.[0];
+      if (file) {
+        this.handleChatAvatarUpload(file);
+      }
+    });
+
     const editorForm = element.querySelector<HTMLFormElement>('#chat-editor-form');
     editorForm?.addEventListener('submit', (event) => {
       event.preventDefault();
       this.addUserByLogin(event.currentTarget as HTMLFormElement);
-    });
-
-    const renameForm = element.querySelector<HTMLFormElement>('#chat-rename-form');
-    renameForm?.addEventListener('submit', (event) => {
-      event.preventDefault();
-      this.renameChat(event.currentTarget as HTMLFormElement);
-    });
-
-    const avatarForm = element.querySelector<HTMLFormElement>('#chat-avatar-form');
-    avatarForm?.addEventListener('submit', (event) => {
-      event.preventDefault();
-      this.updateChatAvatar(event.currentTarget as HTMLFormElement);
     });
 
     const deleteBtn = element.querySelector<HTMLButtonElement>('#delete-chat-btn');
