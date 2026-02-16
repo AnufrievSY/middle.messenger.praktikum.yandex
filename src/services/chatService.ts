@@ -67,13 +67,14 @@ export default class ChatService {
   }
 
   connect(
+    chatId: number,
     userId: number,
     token: string,
     onMessages: (messages: Message[]) => void,
   ): void {
     this.disconnect();
 
-    this.socket = new WebSocket(`wss://ya-praktikum.tech/ws/chats/${userId}/${token}`);
+    this.socket = new WebSocket(`wss://ya-praktikum.tech/ws/chats/${userId}/${chatId}/${token}`);
 
     this.socket.addEventListener('open', () => {
       this.socket?.send(JSON.stringify({ content: '0', type: 'get old' }));

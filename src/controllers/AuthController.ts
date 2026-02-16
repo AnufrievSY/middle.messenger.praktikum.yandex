@@ -20,6 +20,8 @@ export default class AuthController {
       await this.fetchUser();
       mediator.emit('route:go', '/messenger');
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Неверный логин или пароль';
+      mediator.emit('auth:login-failed', message);
       console.error('Login failed', error);
     }
   }

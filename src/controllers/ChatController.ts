@@ -74,6 +74,8 @@ export default class ChatController {
       const userId = await this.authService.findUserIdByLogin(userLogin);
       if (userId) {
         await this.service.addUserToChat(userId, chatId);
+      } else {
+        mediator.emit('chats:user-not-found', 'Пользователь с таким логином не найден');
       }
     }
 
@@ -97,6 +99,7 @@ export default class ChatController {
 
     const userId = await this.authService.findUserIdByLogin(login);
     if (!userId) {
+      mediator.emit('chats:user-not-found', 'Пользователь с таким логином не найден');
       return;
     }
 
@@ -122,9 +125,20 @@ export default class ChatController {
     mediator.emit('messages:update', this.messages);
 
     const token = await this.service.getToken(chatId);
-    this.service.connect(user.id, token, (incomingMessages) => {
-      const newMessages = [...incomingMessages].reverse();
-      this.messages = [...newMessages];
+    this.service.connect(chatId, user.id, token, (incomingMessages) => {
+      if (incomingMessages.length > 1) {
+        this.messages = [...incomingMessages].reverse();
+      } else {
+        const [message] = incomingMessages;
+        if (!message) {
+          return;
+        }
+        const exists = this.messages.some((item) => item.id === message.id);
+        if (exists) {
+          return;
+        }
+        this.messages = [...this.messages, message];
+      }
       mediator.emit('messages:update', this.messages);
     });
 

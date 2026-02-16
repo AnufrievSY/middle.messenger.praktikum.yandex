@@ -7,6 +7,7 @@ export type AppEvents = {
   'auth:register': [RegisterData];
   'auth:logout': [];
   'auth:user': [User | null];
+  'auth:login-failed': [string];
 
   'settings:update': [SettingsData];
   'settings:password': [PasswordData];
@@ -27,6 +28,7 @@ export type AppEvents = {
 
   'chats:update': [ChatPreview[]];
   'chats:users:update': [ChatUser[]];
+  'chats:user-not-found': [string];
   'messages:update': [Message[]];
   'chat:active': [number];
 };

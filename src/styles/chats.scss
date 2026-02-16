@@ -428,9 +428,13 @@
   gap: 10px;
 }
 
+.chat-editor__error {
+  font-size: 12px;
+  color: #9e2626;
+}
+
 .chat-editor__actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-

@@ -23,6 +23,8 @@ export default class ChatsPage extends BasePage {
 
   private messageForm: MessageForm;
 
+  private userError = '';
+
   constructor() {
     const chatList = new ChatList({
       chats: [],
@@ -57,6 +59,12 @@ export default class ChatsPage extends BasePage {
 
     mediator.on('chats:users:update', (users: ChatUser[]) => {
       this.chatUsers = users;
+      this.userError = '';
+      this.setProps({ editorVersion: Date.now() });
+    });
+
+    mediator.on('chats:user-not-found', (message: string) => {
+      this.userError = message;
       this.setProps({ editorVersion: Date.now() });
     });
 
@@ -149,6 +157,7 @@ export default class ChatsPage extends BasePage {
         <ul class="chat-editor__users">${usersMarkup}</ul>
         <form class="chat-editor__form" id="chat-editor-form">
           <input class="field__input" name="chat-login" type="text" placeholder="Логин пользователя" />
+          ${this.userError ? `<span class="chat-editor__error">${this.userError}</span>` : ''}
           <div class="chat-editor__actions">
             <button type="submit" class="btn submit-btn">add user</button>
             <button type="button" id="delete-chat-btn" class="btn alt-btn">delete chat</button>
