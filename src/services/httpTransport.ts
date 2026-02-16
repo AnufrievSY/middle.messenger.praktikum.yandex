@@ -14,6 +14,11 @@ export type RequestOptions = {
   timeout?: number;
 };
 
+export type HTTPError = {
+  status: number;
+  reason: string;
+};
+
 function buildQuery(data: Record<string, unknown>): string {
   const params = new URLSearchParams();
   Object.entries(data).forEach(([key, value]) => {
@@ -27,6 +32,8 @@ function buildQuery(data: Record<string, unknown>): string {
 }
 
 export default class HTTPTransport {
+  constructor(private readonly baseUrl: string = '') {}
+
   get(url: string, options: RequestOptions = {}): Promise<unknown> {
     const { data, ...rest } = options;
     const query = data && typeof data === 'object' ? buildQuery(data as Record<string, unknown>) : '';
@@ -52,7 +59,8 @@ export default class HTTPTransport {
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open(method, url);
+      xhr.open(method, `${this.baseUrl}${url}`);
+      xhr.withCredentials = true;
 
       Object.entries(headers).forEach(([key, value]) => {
         xhr.setRequestHeader(key, value);
@@ -61,7 +69,16 @@ export default class HTTPTransport {
       xhr.onload = () => {
         const isJson = xhr.getResponseHeader('content-type')?.includes('application/json');
         const response = isJson ? JSON.parse(xhr.responseText) : xhr.responseText;
-        resolve(response);
+
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(response);
+          return;
+        }
+
+        const reason = (response as HTTPError)?.reason ?? xhr.statusText;
+        const requestError = new Error(`HTTP ${xhr.status}: ${reason}`);
+        Object.assign(requestError, { status: xhr.status, reason });
+        reject(requestError);
       };
 
       xhr.onerror = () => reject(new Error('Network error'));

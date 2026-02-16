@@ -22,7 +22,7 @@ export default class ErrorPage extends BasePage<ErrorPageProps> {
                     </div>
                 </div>
                 <div class="tile tile--back">
-                    <a class="back" href="#/chats">go back</a>
+                    <a class="back" href="/messenger">go back</a>
                 </div>
             </section>
             <div class="page-bg"></div>

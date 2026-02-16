@@ -13,10 +13,10 @@ export default class LoginPage extends BasePage {
         new Input({ name: 'password', label: 'Пароль', type: 'password' }),
       ],
       submitButton: new Button({ label: 'Войти', type: 'submit' }),
-      altLink: { href: '#/register', text: 'Нет аккаунта?' },
+      altLink: { href: '/sign-up', text: 'Нет аккаунта?' },
       onSubmit: (data) => mediator.emit('auth:login', {
-        login: data.login ?? '',
-        password: data.password ?? '',
+        login: String(data.login ?? ''),
+        password: String(data.password ?? ''),
       }),
     });
     super({ form });

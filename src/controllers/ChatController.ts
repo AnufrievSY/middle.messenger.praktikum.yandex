@@ -1,52 +1,79 @@
 import mediator from '../mediator/AppMediator';
 import ChatService, { ChatPreview, Message } from '../services/chatService';
+import AuthService from '../services/authService';
 
 export default class ChatController {
-  private service: ChatService;
-
   private activeChatId: number | null = null;
 
-  constructor(service: ChatService) {
-    this.service = service;
+  private messages: Message[] = [];
+
+  constructor(private service: ChatService, private authService: AuthService) {
     mediator.on('chats:request', this.handleChatsRequest.bind(this));
     mediator.on('chats:select', this.handleChatSelect.bind(this));
     mediator.on('message:send', this.handleMessageSend.bind(this));
+    mediator.on('chats:create', this.handleCreateChat.bind(this));
+    mediator.on('chats:add-user', this.handleAddUser.bind(this));
+    mediator.on('chats:remove-user', this.handleRemoveUser.bind(this));
   }
 
   private async handleChatsRequest(): Promise<void> {
-    console.log('[ChatController] loading chats');
-    const chats = await this.service.getChats();
-    console.log('[ChatController] chats loaded', { count: chats.length });
-    mediator.emit('chats:update', chats);
-    if (chats.length > 0) {
-      await this.selectChat(chats[0].id);
+    try {
+      const chats = await this.service.getChats();
+      mediator.emit('chats:update', chats);
+      if (chats.length > 0 && this.activeChatId === null) {
+        await this.selectChat(chats[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to load chats', error);
     }
   }
 
   private async handleChatSelect(chatId: number): Promise<void> {
-    console.log('[ChatController] chat selected', { chatId });
     await this.selectChat(chatId);
   }
 
   private async handleMessageSend(payload: { chatId: number; message: string }): Promise<void> {
-    const chatId = payload.chatId ?? this.activeChatId;
-    if (!chatId) return;
-
-    if (!payload.message.trim()) {
+    const message = payload.message.trim();
+    if (!message) {
       return;
     }
-    await this.service.sendMessage(payload.chatId, payload.message);
-    const messages = await this.service.getMessages(payload.chatId);
-    mediator.emit('messages:update', messages);
+    this.service.sendMessage(message);
+  }
+
+  private async handleCreateChat(title: string): Promise<void> {
+    if (!title.trim()) {
+      return;
+    }
+    await this.service.createChat(title.trim());
+    await this.handleChatsRequest();
+  }
+
+  private async handleAddUser(payload: { userId: number; chatId: number }): Promise<void> {
+    await this.service.addUserToChat(payload.userId, payload.chatId);
+  }
+
+  private async handleRemoveUser(payload: { userId: number; chatId: number }): Promise<void> {
+    await this.service.removeUserFromChat(payload.userId, payload.chatId);
   }
 
   private async selectChat(chatId: number): Promise<void> {
     this.activeChatId = chatId;
-    console.log('[ChatController] loading messages', { chatId });
-    const messages = await this.service.getMessages(chatId);
-    console.log('[ChatController] messages loaded', { chatId, count: messages.length });
-    mediator.emit('messages:update', messages);
     mediator.emit('chat:active', chatId);
+
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      return;
+    }
+
+    const token = await this.service.getToken(chatId);
+    this.service.connect(chatId, user.id, token, (incomingMessages) => {
+      const newMessages = [...incomingMessages].reverse();
+      this.messages = [...this.messages, ...newMessages];
+      mediator.emit('messages:update', this.messages);
+    });
+
+    this.messages = [];
+    mediator.emit('messages:update', this.messages);
   }
 }
 

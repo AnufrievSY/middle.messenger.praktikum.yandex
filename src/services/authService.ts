@@ -1,3 +1,5 @@
+import HTTPTransport from './httpTransport';
+
 export type AuthData = {
   login: string;
   password: string;
@@ -12,57 +14,42 @@ export type RegisterData = {
   password: string;
 };
 
-type AuthResult = {
-  ok: boolean;
-  reason?: 'exists' | 'invalid';
+export type User = Omit<RegisterData, 'password'> & {
+  id: number;
+  avatar: string | null;
+  display_name: string | null;
 };
 
 export default class AuthService {
-  private currentUser: RegisterData | null = null;
+  private transport = new HTTPTransport('https://ya-praktikum.tech/api/v2');
 
-  private readonly demoUser: RegisterData = {
-    email: 'demo@example.com',
-    phone: '+79990001122',
-    login: 'demo',
-    first_name: 'Demo',
-    second_name: 'User',
-    password: 'Demo1234',
-  };
+  private currentUser: User | null = null;
 
-  private users: RegisterData[] = [this.demoUser];
-
-  getCurrentUser(): RegisterData | null {
-    return this.currentUser;
+  async login(data: AuthData): Promise<void> {
+    await this.transport.post('/auth/signin', { data });
   }
 
-  getUsers(): RegisterData[] {
-    return [...this.users];
+  async register(data: RegisterData): Promise<void> {
+    await this.transport.post('/auth/signup', { data });
   }
 
-  login(data: AuthData): AuthResult {
-    const user = this.users.find(
-      (item) => item.login === data.login && item.password === data.password,
-    );
-    if (user) {
+  async logout(): Promise<void> {
+    await this.transport.post('/auth/logout');
+    this.currentUser = null;
+  }
+
+  async fetchUser(): Promise<User | null> {
+    try {
+      const user = await this.transport.get('/auth/user') as User;
       this.currentUser = user;
-      return { ok: true };
+      return user;
+    } catch (error) {
+      this.currentUser = null;
+      return null;
     }
-    console.log('AuthService.login', data);
-    return { ok: false, reason: 'invalid' };
   }
 
-  register(data: RegisterData): AuthResult {
-    const exists = this.users.some(
-      (item) => item.login === data.login || item.email === data.email,
-    );
-    if (exists) {
-      this.currentUser = this.demoUser;
-      console.log('AuthService.register.exists', data);
-      return { ok: true, reason: 'exists' };
-    }
-    this.users.push(data);
-    this.currentUser = data;
-    console.log('AuthService.register', data);
-    return { ok: true };
+  getCurrentUser(): User | null {
+    return this.currentUser;
   }
 }

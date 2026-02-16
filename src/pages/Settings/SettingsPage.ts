@@ -9,26 +9,22 @@ export default class SettingsPage extends BasePage {
     const profileForm = new Form({
       title: 'Данные профиля',
       fields: [
-        new Input({
-          name: 'email', label: 'Email', type: 'email', value: 'user@example.com',
-        }),
-        new Input({
-          name: 'phone', label: 'Телефон', type: 'tel', value: '+79999999999',
-        }),
-        new Input({ name: 'login', label: 'Логин', value: 'yandex_user' }),
-        new Input({ name: 'first_name', label: 'Имя', value: 'Иван' }),
-        new Input({ name: 'second_name', label: 'Фамилия', value: 'Петров' }),
+        new Input({ name: 'email', label: 'Email', type: 'email' }),
+        new Input({ name: 'phone', label: 'Телефон', type: 'tel' }),
+        new Input({ name: 'login', label: 'Логин' }),
+        new Input({ name: 'first_name', label: 'Имя' }),
+        new Input({ name: 'second_name', label: 'Фамилия' }),
       ],
       submitButton: new Button({ label: 'Сохранить данные', type: 'submit' }),
       onSubmit: (data) => mediator.emit('settings:update', {
-        email: data.email ?? '',
-        phone: data.phone ?? '',
-        login: data.login ?? '',
-        first_name: data.first_name ?? '',
-        second_name: data.second_name ?? '',
-        password: '',
+        email: String(data.email ?? ''),
+        phone: String(data.phone ?? ''),
+        login: String(data.login ?? ''),
+        first_name: String(data.first_name ?? ''),
+        second_name: String(data.second_name ?? ''),
       }),
     });
+
     const passwordForm = new Form({
       title: 'Пароль',
       subtitle: 'Изменение пароля',
@@ -37,10 +33,12 @@ export default class SettingsPage extends BasePage {
         new Input({ name: 'new_password', label: 'Новый пароль', type: 'password' }),
       ],
       submitButton: new Button({ label: 'Обновить пароль', type: 'submit' }),
-      onSubmit: (data) => {
-        console.log('Password change', data);
-      },
+      onSubmit: (data) => mediator.emit('settings:password', {
+        oldPassword: String(data.old_password ?? ''),
+        newPassword: String(data.new_password ?? ''),
+      }),
     });
+
     const avatarForm = new Form({
       title: 'Аватар',
       subtitle: 'Загрузка нового аватара',
@@ -48,23 +46,41 @@ export default class SettingsPage extends BasePage {
         new Input({ name: 'avatar', label: 'Файл', type: 'file' }),
       ],
       submitButton: new Button({ label: 'Обновить аватар', type: 'submit' }),
-      altLink: { href: '#/chats', text: 'Назад к чатам' },
+      altLink: { href: '/messenger', text: 'Назад к чатам' },
       onSubmit: (data) => {
-        console.log('Avatar change', data);
+        const { avatar } = data;
+        if (avatar instanceof File) {
+          mediator.emit('settings:avatar', avatar);
+        }
       },
     });
-    super({ profileForm, passwordForm, avatarForm });
+
+    const logoutButton = new Button({
+      label: 'Выйти',
+      type: 'button',
+      events: {
+        click: () => mediator.emit('auth:logout'),
+      },
+    });
+
+    super({
+      profileForm,
+      passwordForm,
+      avatarForm,
+      logoutButton,
+    });
   }
 
   render(): HTMLElement {
     const template = `
             <section class="input-page">
-                <a class="back-btn" href="#/chats" aria-label="Назад">‹</a>
+                <a class="back-btn" href="/messenger" aria-label="Назад">‹</a>
                 <div class="input-card">
                     <div class="avatar-placeholder" aria-hidden="true"></div>
                     {{{profileForm}}}
                     {{{passwordForm}}}
                     {{{avatarForm}}}
+                    {{{logoutButton}}}
                 </div>
             </section>
             <div class="page-bg"></div>
