@@ -1,0 +1,30 @@
+.input-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.input-field__label {
+    font-size: 12px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.input-field__control {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #c9c9c9;
+    font-size: 14px;
+}
+
+.input-field__error {
+    min-height: 14px;
+    font-size: 12px;
+    color: #d32525;
+}
+
+.input-field--invalid .input-field__control {
+    border-color: #d32525;
+}

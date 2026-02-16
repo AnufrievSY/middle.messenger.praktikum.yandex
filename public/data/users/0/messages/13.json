@@ -1,0 +1,4 @@
+[
+  { "id": 1, "text": "FirstMsg", "time": "10:20", "isMine": false },
+  { "id": 2, "text": "SecondMsg", "time": "10:21", "isMine": true }
+]
