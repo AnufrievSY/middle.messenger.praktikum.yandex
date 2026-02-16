@@ -142,7 +142,6 @@ export default class ChatsPage extends BasePage {
 
   private handleTitleInput(value: string): void {
     this.draftChatTitle = value;
-    this.setProps({ editorVersion: Date.now() });
   }
 
   private handleChatAvatarUpload(file: File): void {
@@ -229,7 +228,7 @@ export default class ChatsPage extends BasePage {
               value="${this.draftChatTitle || this.activeChat?.title || ''}"
               ${this.isTitleEditing ? '' : 'readonly'}
             />
-            ${this.isTitleEditing && this.draftChatTitle.trim() !== (this.activeChat?.title ?? '')
+            ${this.isTitleEditing
     ? '<button type="button" id="chat-title-save" class="chat-editor__title-save" aria-label="Сохранить">✓</button>'
     : ''}
           </div>
@@ -401,6 +400,14 @@ export default class ChatsPage extends BasePage {
         this.stopTitleEditing();
       }
     });
+
+    if (this.isTitleEditing && titleInput) {
+      setTimeout(() => {
+        titleInput.focus();
+        titleInput.selectionStart = titleInput.value.length;
+        titleInput.selectionEnd = titleInput.value.length;
+      }, 0);
+    }
 
     const titleSaveBtn = element.querySelector<HTMLButtonElement>('#chat-title-save');
     titleSaveBtn?.addEventListener('click', () => this.saveTitleChange());
