@@ -7,6 +7,12 @@ import ChatService, {
 import AuthService from '../services/authService';
 
 const STORAGE_PREFIX = 'chat_messages_';
+const CHATS_META_STORAGE = 'chat_meta_overrides';
+
+type ChatMetaOverride = {
+  title?: string;
+  avatar?: string | null;
+};
 
 export default class ChatController {
   private activeChatId: number | null = null;
@@ -15,7 +21,10 @@ export default class ChatController {
 
   private chats: ChatPreview[] = [];
 
+  private chatMetaOverrides = new Map<number, ChatMetaOverride>();
+
   constructor(private service: ChatService, private authService: AuthService) {
+    this.chatMetaOverrides = this.loadChatMetaOverrides();
     mediator.on('chats:request', this.handleChatsRequest.bind(this));
     mediator.on('chats:select', this.handleChatSelect.bind(this));
     mediator.on('message:send', this.handleMessageSend.bind(this));
@@ -31,7 +40,7 @@ export default class ChatController {
   private async handleChatsRequest(): Promise<void> {
     try {
       const chats = await this.service.getChats();
-      this.chats = chats;
+      this.chats = this.applyChatMetaOverrides(chats);
       mediator.emit('chats:update', this.chats);
 
       if (chats.length > 0 && this.activeChatId === null) {
@@ -142,10 +151,14 @@ export default class ChatController {
       return;
     }
 
+    this.upsertChatMetaOverride(payload.chatId, { title });
+
     try {
       await this.service.updateChatTitle(payload.chatId, title);
+      await this.handleChatsRequest();
+      return;
     } catch (error) {
-      // API может не поддерживать переименование; оставляем локальный фолбэк
+      console.error('Failed to update chat title', error);
     }
 
     this.chats = this.chats.map((chat) => {
@@ -161,6 +174,9 @@ export default class ChatController {
 
   private async handleUpdateChatAvatar(payload: { chatId: number; file: File }): Promise<void> {
     try {
+      const previewUrl = URL.createObjectURL(payload.file);
+      this.upsertChatMetaOverride(payload.chatId, { avatar: previewUrl });
+
       await this.service.updateChatAvatar(payload.chatId, payload.file);
       await this.handleChatsRequest();
     } catch (error) {
@@ -357,6 +373,74 @@ export default class ChatController {
   private clearStoredMessages(chatId: number): void {
     try {
       sessionStorage.removeItem(`${STORAGE_PREFIX}${chatId}`);
+    } catch (error) {
+      // no-op
+    }
+  }
+
+  private applyChatMetaOverrides(chats: ChatPreview[]): ChatPreview[] {
+    return chats.map((chat) => {
+      const override = this.chatMetaOverrides.get(chat.id);
+      if (!override) {
+        return chat;
+      }
+
+      return {
+        ...chat,
+        title: override.title ?? chat.title,
+        avatar: override.avatar ?? chat.avatar,
+      };
+    });
+  }
+
+  private upsertChatMetaOverride(chatId: number, patch: ChatMetaOverride): void {
+    const current = this.chatMetaOverrides.get(chatId) ?? {};
+    const next = {
+      ...current,
+      ...patch,
+    };
+    this.chatMetaOverrides.set(chatId, next);
+    this.storeChatMetaOverrides();
+
+    this.chats = this.chats.map((chat) => {
+      if (chat.id !== chatId) {
+        return chat;
+      }
+
+      return {
+        ...chat,
+        title: next.title ?? chat.title,
+        avatar: next.avatar ?? chat.avatar,
+      };
+    });
+    mediator.emit('chats:update', this.chats);
+  }
+
+  private loadChatMetaOverrides(): Map<number, ChatMetaOverride> {
+    try {
+      const serialized = localStorage.getItem(CHATS_META_STORAGE);
+      if (!serialized) {
+        return new Map();
+      }
+
+      const parsed = JSON.parse(serialized) as Record<string, ChatMetaOverride>;
+      const entries = Object.entries(parsed).map(([key, value]) => [Number(key), value] as const);
+      return new Map(entries);
+    } catch (error) {
+      return new Map();
+    }
+  }
+
+  private storeChatMetaOverrides(): void {
+    try {
+      const object = [...this.chatMetaOverrides.entries()].reduce<Record<string, ChatMetaOverride>>(
+        (acc, [chatId, value]) => {
+          acc[String(chatId)] = value;
+          return acc;
+        },
+        {},
+      );
+      localStorage.setItem(CHATS_META_STORAGE, JSON.stringify(object));
     } catch (error) {
       // no-op
     }
