@@ -81,9 +81,13 @@ export default class SettingsPage extends BasePage {
     saveButton.classList.add('settings-top-save--visible');
   }
 
-  private clearDirty(form: HTMLFormElement, saveButton: HTMLButtonElement): void {
+  private clearDirty(form: HTMLFormElement): void {
     form.dataset.dirty = 'false';
-    saveButton.classList.remove('settings-top-save--visible');
+  }
+
+  private refreshSaveButton(forms: HTMLFormElement[], saveButton: HTMLButtonElement): void {
+    const hasDirtyForm = forms.some((form) => form.dataset.dirty === 'true');
+    saveButton.classList.toggle('settings-top-save--visible', hasDirtyForm);
   }
 
   render(): HTMLElement {
@@ -131,25 +135,37 @@ export default class SettingsPage extends BasePage {
 
     forms.forEach((form) => {
       form.dataset.dirty = 'false';
+
       form.addEventListener('focusin', () => {
         activeForm = form;
       });
-      form.addEventListener('input', () => {
-        activeForm = form;
-        if (saveButton) {
-          this.markDirty(form, saveButton);
-        }
+
+      const formInputs = Array.from(form.querySelectorAll<HTMLInputElement>('input'));
+      formInputs.forEach((input) => {
+        input.addEventListener('input', () => {
+          activeForm = form;
+          if (saveButton) {
+            this.markDirty(form, saveButton);
+            this.refreshSaveButton(forms, saveButton);
+          }
+        });
       });
+
       form.addEventListener('submit', () => {
+        this.clearDirty(form);
         if (saveButton) {
-          this.clearDirty(form, saveButton);
+          this.refreshSaveButton(forms, saveButton);
         }
       });
     });
 
     saveButton?.addEventListener('click', () => {
-      if (activeForm && activeForm.dataset.dirty === 'true') {
-        activeForm.requestSubmit();
+      const targetForm = activeForm?.dataset.dirty === 'true'
+        ? activeForm
+        : forms.find((form) => form.dataset.dirty === 'true') ?? null;
+
+      if (targetForm) {
+        targetForm.requestSubmit();
       }
     });
   }
