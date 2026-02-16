@@ -67,9 +67,9 @@ export default class SettingsPage extends BasePage {
     });
   }
 
-  private handleAvatarChange(file: File): void {
+  private handleAvatarChange(file: File, element: HTMLElement): void {
     const previewUrl = URL.createObjectURL(file);
-    const avatarImage = this.getContent().querySelector<HTMLImageElement>('.settings-avatar-img');
+    const avatarImage = element.querySelector<HTMLImageElement>('.settings-avatar-img');
     if (avatarImage) {
       avatarImage.src = previewUrl;
     }
@@ -109,13 +109,9 @@ export default class SettingsPage extends BasePage {
             </section>
             <div class="page-bg"></div>
         `;
-    return this.compile(template, this.props);
-  }
 
-  componentDidMount(): void {
-    super.componentDidMount();
+    const element = this.compile(template, this.props);
 
-    const element = this.getContent();
     const avatarTrigger = element.querySelector<HTMLButtonElement>('#settings-avatar-trigger');
     const avatarInput = element.querySelector<HTMLInputElement>('#settings-avatar-input');
     const saveButton = element.querySelector<HTMLButtonElement>('#settings-top-save');
@@ -129,7 +125,7 @@ export default class SettingsPage extends BasePage {
       if (!file) {
         return;
       }
-      this.handleAvatarChange(file);
+      this.handleAvatarChange(file, element);
       avatarInput.value = '';
     });
 
@@ -168,5 +164,7 @@ export default class SettingsPage extends BasePage {
         targetForm.requestSubmit();
       }
     });
+
+    return element;
   }
 }
