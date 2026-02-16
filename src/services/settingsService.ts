@@ -1,14 +1,34 @@
+import HTTPTransport from './httpTransport';
+import { User } from './authService';
+
 export type SettingsData = {
   email: string;
   phone: string;
   login: string;
   first_name: string;
   second_name: string;
-  password: string;
+  display_name?: string;
+};
+
+export type PasswordData = {
+  oldPassword: string;
+  newPassword: string;
 };
 
 export default class SettingsService {
-  updateProfile(data: SettingsData): void {
-    console.log('SettingsService.updateProfile', data);
+  private transport = new HTTPTransport('https://ya-praktikum.tech/api/v2');
+
+  async updateProfile(data: SettingsData): Promise<User> {
+    return this.transport.put('/user/profile', { data }) as Promise<User>;
+  }
+
+  async updatePassword(data: PasswordData): Promise<void> {
+    await this.transport.put('/user/password', { data });
+  }
+
+  async updateAvatar(file: File): Promise<User> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return this.transport.put('/user/profile/avatar', { data: formData }) as Promise<User>;
   }
 }

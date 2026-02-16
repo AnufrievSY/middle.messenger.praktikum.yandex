@@ -24,6 +24,30 @@
     opacity: 1;
 }
 
+.settings-top-save {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 5;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: #7f4ea8;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+
+.settings-top-save--visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .input-card {
     position: relative;
     z-index: 2;
@@ -38,16 +62,7 @@
     box-shadow: 0 14px 40px rgb(0 0 0 / 18%);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-}
-
-.avatar-placeholder {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 12px 30px rgb(0 0 0 / 2%);
-    margin: 0 auto 8px;
+    gap: 5px;
 }
 
 .input-title {
@@ -62,15 +77,44 @@
 }
 
 .input-form {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 5px;
+}
+
+.settings-avatar-block {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2px;
+}
+
+.settings-avatar-btn {
+    border: 0;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.settings-avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #fff;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 2%);
+}
+
+.settings-avatar-input {
+    display: none;
 }
 
 .field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
 }
 
 .field__label {
@@ -136,4 +180,25 @@
     background: transparent;
     color: #3a2a4c;
     border: 1px solid rgb(0 0 0 / 15%);
+}
+
+.alt-btn--highlight {
+    border-color: #7f4ea8;
+    box-shadow: 0 0 0 2px rgb(127 78 168 / 25%);
+    color: #7f4ea8;
+    font-weight: 700;
+}
+
+.login-error {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgb(255 0 0 / 10%);
+    color: #7c2020;
+    border: 1px solid rgb(210 70 70 / 40%);
+    font-size: 13px;
+}
+
+.login-error__register {
+    font-weight: 700;
+    color: #7f4ea8;
 }

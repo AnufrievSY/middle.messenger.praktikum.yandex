@@ -16,43 +16,52 @@ import SettingsController from './controllers/SettingsController';
 import ChatService from './services/chatService';
 import AuthService from './services/authService';
 import SettingsService from './services/settingsService';
+import Router from './core/Router';
 
 const chatService = new ChatService();
 const authService = new AuthService();
 const settingsService = new SettingsService();
 
+const authController = new AuthController(authService);
 // eslint-disable-next-line no-new
-new ChatController(chatService);
+new ChatController(chatService, authService);
 // eslint-disable-next-line no-new
-new AuthController(authService);
-// eslint-disable-next-line no-new
-new SettingsController(settingsService);
+new SettingsController(settingsService, authService);
 
 (window as unknown as { app?: { auth: AuthService } }).app = { auth: authService };
 
-const routes: Record<string, () => HTMLElement> = {
-  '/login': () => new LoginPage().getContent(),
-  '/register': () => new RegisterPage().getContent(),
-  '/settings': () => new SettingsPage().getContent(),
-  '/chats': () => new ChatsPage().getContent(),
-  '/404': () => new ErrorPage({ code: 404, message: 'Страница не найдена' }).getContent(),
-  '/500': () => new ErrorPage({ code: 500, message: 'Мы уже исправляем' }).getContent(),
-};
+const router = new Router({
+  rootQuery: '#app',
+  checkAuth: async () => {
+    const user = authService.getCurrentUser();
+    if (user) {
+      return true;
+    }
+    const fetchedUser = await authController.fetchUser();
+    return Boolean(fetchedUser);
+  },
+  onUnauthorizedRedirect: '/',
+  onAuthorizedRedirect: '/messenger',
+});
 
-function renderPage(): void {
-  const root = document.querySelector<HTMLElement>('#app');
-  if (!root) {
-    throw new Error('Root element not found');
-  }
-  const path = window.location.hash.replace('#', '') || '/login';
-  const page = routes[path] ? routes[path]() : routes['/404']();
-  root.innerHTML = '';
-  root.append(page);
-}
+router
+  .use({ path: '/', shouldBeGuest: true, render: () => new LoginPage().getContent() })
+  .use({ path: '/sign-up', shouldBeGuest: true, render: () => new RegisterPage().getContent() })
+  .use({ path: '/settings', shouldAuth: true, render: () => new SettingsPage().getContent() })
+  .use({ path: '/messenger', shouldAuth: true, render: () => new ChatsPage().getContent() })
+  .use({ path: '/404', render: () => new ErrorPage({ code: 404, message: 'Страница не найдена' }).getContent() })
+  .use({ path: '/500', render: () => new ErrorPage({ code: 500, message: 'Мы уже исправляем' }).getContent() });
 
-window.addEventListener('hashchange', renderPage);
-window.addEventListener('DOMContentLoaded', renderPage);
+router.start();
 
 mediator.on('route:go', (path: string) => {
-  window.location.hash = path;
+  router.go(path);
+});
+
+mediator.on('route:back', () => {
+  router.back();
+});
+
+mediator.on('route:forward', () => {
+  router.forward();
 });
