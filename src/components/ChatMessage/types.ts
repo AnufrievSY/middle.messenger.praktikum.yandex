@@ -6,4 +6,6 @@ export type ChatMessageProps = BlockProps & {
   time: string;
   isMine?: boolean;
   status?: MessageStatus;
+  author?: string;
+  avatar?: string;
 };

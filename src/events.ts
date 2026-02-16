@@ -23,6 +23,8 @@ export type AppEvents = {
   'chats:add-user': [{ login: string; chatId: number }];
   'chats:remove-user': [{ userId: number; chatId: number }];
   'chats:delete': [number];
+  'chats:rename': [{ chatId: number; title: string }];
+  'chats:avatar': [{ chatId: number; file: File }];
   'chats:users:request': [number];
   'message:send': [{ chatId: number; message: string }];
 

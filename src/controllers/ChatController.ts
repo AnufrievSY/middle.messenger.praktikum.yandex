@@ -13,6 +13,8 @@ export default class ChatController {
 
   private messagesByChat = new Map<number, Message[]>();
 
+  private chats: ChatPreview[] = [];
+
   constructor(private service: ChatService, private authService: AuthService) {
     mediator.on('chats:request', this.handleChatsRequest.bind(this));
     mediator.on('chats:select', this.handleChatSelect.bind(this));
@@ -20,6 +22,8 @@ export default class ChatController {
     mediator.on('chats:create', this.handleCreateChat.bind(this));
     mediator.on('chats:add-user', this.handleAddUser.bind(this));
     mediator.on('chats:remove-user', this.handleRemoveUser.bind(this));
+    mediator.on('chats:rename', this.handleRenameChat.bind(this));
+    mediator.on('chats:avatar', this.handleUpdateChatAvatar.bind(this));
     mediator.on('chats:users:request', this.handleUsersRequest.bind(this));
     mediator.on('chats:delete', this.handleDeleteChat.bind(this));
   }
@@ -27,7 +31,8 @@ export default class ChatController {
   private async handleChatsRequest(): Promise<void> {
     try {
       const chats = await this.service.getChats();
-      mediator.emit('chats:update', chats);
+      this.chats = chats;
+      mediator.emit('chats:update', this.chats);
 
       if (chats.length > 0 && this.activeChatId === null) {
         await this.selectChat(chats[0].id);
@@ -45,6 +50,19 @@ export default class ChatController {
     }
 
     await this.selectChat(chatId);
+  }
+
+  private handleMarkChatAsRead(chatId: number): void {
+    this.chats = this.chats.map((chat) => {
+      if (chat.id === chatId) {
+        return {
+          ...chat,
+          unread_count: 0,
+        };
+      }
+      return chat;
+    });
+    mediator.emit('chats:update', this.chats);
   }
 
   private async handleUsersRequest(chatId: number): Promise<void> {
@@ -118,6 +136,38 @@ export default class ChatController {
     await this.handleChatsRequest();
   }
 
+  private async handleRenameChat(payload: { chatId: number; title: string }): Promise<void> {
+    const title = payload.title.trim();
+    if (!title) {
+      return;
+    }
+
+    try {
+      await this.service.updateChatTitle(payload.chatId, title);
+    } catch (error) {
+      // API может не поддерживать переименование; оставляем локальный фолбэк
+    }
+
+    this.chats = this.chats.map((chat) => {
+      if (chat.id === payload.chatId) {
+        return { ...chat, title };
+      }
+      return chat;
+    });
+
+    mediator.emit('chats:update', this.chats);
+    mediator.emit('chat:active', payload.chatId);
+  }
+
+  private async handleUpdateChatAvatar(payload: { chatId: number; file: File }): Promise<void> {
+    try {
+      await this.service.updateChatAvatar(payload.chatId, payload.file);
+      await this.handleChatsRequest();
+    } catch (error) {
+      console.error('Failed to update chat avatar', error);
+    }
+  }
+
   private async handleAddUser(payload: { login: string; chatId: number }): Promise<void> {
     const login = payload.login.trim();
     if (!login) {
@@ -142,6 +192,7 @@ export default class ChatController {
   private async selectChat(chatId: number): Promise<void> {
     this.activeChatId = chatId;
     mediator.emit('chat:active', chatId);
+    this.handleMarkChatAsRead(chatId);
 
     const cachedMessages = this.messagesByChat.get(chatId) ?? this.getStoredMessages(chatId);
     this.messagesByChat.set(chatId, cachedMessages);
@@ -214,7 +265,10 @@ export default class ChatController {
   }
 
   private replaceSendingMessage(messages: Message[], incomingMessage: Message): Message[] {
-    const sendingIndex = messages.findIndex((message) => message.status === 'sending' && message.content === incomingMessage.content);
+    const sendingIndex = messages.findIndex((message) => {
+      const isOwnPendingMessage = message.status === 'sending' || message.status === 'sent';
+      return isOwnPendingMessage && message.content === incomingMessage.content && message.localId;
+    });
 
     if (sendingIndex === -1) {
       return [...messages, { ...incomingMessage, status: 'sent' }];

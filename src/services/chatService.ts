@@ -85,6 +85,17 @@ export default class ChatService {
     await this.transport.delete('/chats', { data: { chatId } });
   }
 
+  async updateChatTitle(chatId: number, title: string): Promise<void> {
+    await this.transport.put('/chats', { data: { chatId, title } });
+  }
+
+  async updateChatAvatar(chatId: number, file: File): Promise<void> {
+    const formData = new FormData();
+    formData.append('chatId', String(chatId));
+    formData.append('avatar', file);
+    await this.transport.put('/chats/avatar', { data: formData });
+  }
+
   async getChatUsers(chatId: number): Promise<ChatUser[]> {
     const users = await this.transport.get(`/chats/${chatId}/users`);
     return Array.isArray(users) ? (users as ChatUser[]) : [];

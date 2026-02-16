@@ -21,6 +21,10 @@ export default class ChatMessage extends Block<ChatMessageProps> {
   render(): HTMLElement {
     const template = `
             <div class="message message--{{owner}}">
+                <div class="message__author-row">
+                    <img class="message__author-avatar" src="{{avatar}}" alt="{{author}}" />
+                    <div class="message__author">{{author}}</div>
+                </div>
                 <div class="message__text">{{text}}</div>
                 <div class="message__meta">
                     <div class="message__time">{{time}}</div>
@@ -34,6 +38,8 @@ export default class ChatMessage extends Block<ChatMessageProps> {
       time: this.props.time,
       owner: this.props.isMine ? 'mine' : 'their',
       statusMarkup: this.renderStatus(),
+      author: this.props.author ?? 'Unknown user',
+      avatar: this.props.avatar ?? '/data/users/1/avatar.jpg',
     });
   }
 }
