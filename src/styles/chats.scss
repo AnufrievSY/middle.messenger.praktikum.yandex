@@ -269,6 +269,24 @@
   opacity: 0.65;
 }
 
+
+.message__meta {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message__status {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.message__status--read {
+  color: #bfe4ff;
+}
+
 /* чужие сообщения — серые */
 .message--their {
   align-self: flex-start;

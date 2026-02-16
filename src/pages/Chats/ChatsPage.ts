@@ -167,6 +167,18 @@ export default class ChatsPage extends BasePage {
     `;
   }
 
+  private formatMessageTime(isoTime: string): string {
+    const date = new Date(isoTime);
+    if (Number.isNaN(date.getTime())) {
+      return '--:--';
+    }
+
+    return date.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   private renderMessages(): string {
     const messages = this.messages ?? [];
     if (!messages.length) {
@@ -180,8 +192,9 @@ export default class ChatsPage extends BasePage {
             <div class="chat__body_messages">
                 ${messages.map((message) => new ChatMessage({
     text: message.content ?? '',
-    time: new Date(message.time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+    time: this.formatMessageTime(message.time),
     isMine: message.user_id === currentUserId,
+    status: message.status,
   }).getContent().outerHTML).join('')}
             </div>
         `;
