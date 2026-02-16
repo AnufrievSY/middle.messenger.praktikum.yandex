@@ -26,6 +26,12 @@ export default class AuthController {
 
   private async handleRegister(data: RegisterData): Promise<void> {
     try {
+      const isLoginAvailable = await this.service.isLoginAvailable(data.login);
+      if (!isLoginAvailable) {
+        console.error('Register failed: login already exists');
+        return;
+      }
+
       await this.service.register(data);
       await this.fetchUser();
       mediator.emit('route:go', '/messenger');

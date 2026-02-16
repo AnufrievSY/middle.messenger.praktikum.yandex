@@ -1,6 +1,6 @@
 import type { AuthData, RegisterData, User } from './services/authService';
 import type { PasswordData, SettingsData } from './services/settingsService';
-import type { ChatPreview, Message } from './services/chatService';
+import type { ChatPreview, Message, ChatUser } from './services/chatService';
 
 export type AppEvents = {
   'auth:login': [AuthData];
@@ -18,12 +18,15 @@ export type AppEvents = {
 
   'chats:select': [number];
   'chats:request': [];
-  'chats:create': [string];
-  'chats:add-user': [{ userId: number; chatId: number }];
+  'chats:create': [{ title: string; userLogin?: string }];
+  'chats:add-user': [{ login: string; chatId: number }];
   'chats:remove-user': [{ userId: number; chatId: number }];
+  'chats:delete': [number];
+  'chats:users:request': [number];
   'message:send': [{ chatId: number; message: string }];
 
   'chats:update': [ChatPreview[]];
+  'chats:users:update': [ChatUser[]];
   'messages:update': [Message[]];
   'chat:active': [number];
 };

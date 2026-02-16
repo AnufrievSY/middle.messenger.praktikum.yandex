@@ -49,6 +49,17 @@ export default class AuthService {
     }
   }
 
+  async isLoginAvailable(login: string): Promise<boolean> {
+    const users = await this.transport.post('/user/search', { data: { login } }) as User[];
+    return !users.some((user) => user.login === login);
+  }
+
+  async findUserIdByLogin(login: string): Promise<number | null> {
+    const users = await this.transport.post('/user/search', { data: { login } }) as User[];
+    const user = users.find((item) => item.login === login);
+    return user?.id ?? null;
+  }
+
   getCurrentUser(): User | null {
     return this.currentUser;
   }

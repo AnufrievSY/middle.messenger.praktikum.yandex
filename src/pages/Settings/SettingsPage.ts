@@ -3,17 +3,31 @@ import { Form } from '../../components/Form';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import mediator from '../../mediator/AppMediator';
+import AuthService from '../../services/authService';
 
 export default class SettingsPage extends BasePage {
   constructor() {
+    const auth = (window as unknown as { app?: { auth?: AuthService } }).app?.auth;
+    const user = auth?.getCurrentUser();
+
     const profileForm = new Form({
       title: 'Данные профиля',
       fields: [
-        new Input({ name: 'email', label: 'Email', type: 'email' }),
-        new Input({ name: 'phone', label: 'Телефон', type: 'tel' }),
-        new Input({ name: 'login', label: 'Логин' }),
-        new Input({ name: 'first_name', label: 'Имя' }),
-        new Input({ name: 'second_name', label: 'Фамилия' }),
+        new Input({
+          name: 'email',
+          label: 'Email',
+          type: 'email',
+          value: user?.email ?? '',
+        }),
+        new Input({
+          name: 'phone',
+          label: 'Телефон',
+          type: 'tel',
+          value: user?.phone ?? '',
+        }),
+        new Input({ name: 'login', label: 'Логин', value: user?.login ?? '' }),
+        new Input({ name: 'first_name', label: 'Имя', value: user?.first_name ?? '' }),
+        new Input({ name: 'second_name', label: 'Фамилия', value: user?.second_name ?? '' }),
       ],
       submitButton: new Button({ label: 'Сохранить данные', type: 'submit' }),
       onSubmit: (data) => mediator.emit('settings:update', {

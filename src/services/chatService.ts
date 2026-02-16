@@ -15,6 +15,14 @@ export type Message = {
   user_id: number;
 };
 
+export type ChatUser = {
+  id: number;
+  first_name: string;
+  second_name: string;
+  login: string;
+  avatar: string | null;
+};
+
 type ChatTokenResponse = {
   token: string;
 };
@@ -24,13 +32,25 @@ export default class ChatService {
 
   private socket: WebSocket | null = null;
 
+  private sendQueue: string[] = [];
+
   async getChats(): Promise<ChatPreview[]> {
     const response = await this.transport.get('/chats');
     return Array.isArray(response) ? (response as ChatPreview[]) : [];
   }
 
-  async createChat(title: string): Promise<void> {
-    await this.transport.post('/chats', { data: { title } });
+  async createChat(title: string): Promise<number> {
+    const response = await this.transport.post('/chats', { data: { title } }) as { id: number };
+    return response.id;
+  }
+
+  async deleteChat(chatId: number): Promise<void> {
+    await this.transport.delete('/chats', { data: { chatId } });
+  }
+
+  async getChatUsers(chatId: number): Promise<ChatUser[]> {
+    const users = await this.transport.get(`/chats/${chatId}/users`);
+    return Array.isArray(users) ? (users as ChatUser[]) : [];
   }
 
   async addUserToChat(userId: number, chatId: number): Promise<void> {
@@ -47,7 +67,6 @@ export default class ChatService {
   }
 
   connect(
-    chatId: number,
     userId: number,
     token: string,
     onMessages: (messages: Message[]) => void,
@@ -58,6 +77,7 @@ export default class ChatService {
 
     this.socket.addEventListener('open', () => {
       this.socket?.send(JSON.stringify({ content: '0', type: 'get old' }));
+      this.flushQueue();
     });
 
     this.socket.addEventListener('message', (event) => {
@@ -74,12 +94,14 @@ export default class ChatService {
     this.socket.addEventListener('close', () => {
       this.socket = null;
     });
-
-    console.log('WebSocket connected', { chatId });
   }
 
   sendMessage(message: string): void {
-    this.socket?.send(JSON.stringify({ content: message, type: 'message' }));
+    if (this.socket?.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify({ content: message, type: 'message' }));
+      return;
+    }
+    this.sendQueue.push(message);
   }
 
   disconnect(): void {
@@ -87,5 +109,16 @@ export default class ChatService {
       this.socket.close();
     }
     this.socket = null;
+    this.sendQueue = [];
+  }
+
+  private flushQueue(): void {
+    while (this.sendQueue.length && this.socket?.readyState === WebSocket.OPEN) {
+      const message = this.sendQueue.shift();
+      if (!message) {
+        break;
+      }
+      this.socket.send(JSON.stringify({ content: message, type: 'message' }));
+    }
   }
 }
